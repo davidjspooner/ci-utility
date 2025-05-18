@@ -20,8 +20,10 @@ jobs:
 
       - name: Configure Git for private module access
         run: |
-          git config --global url."https://${{ secrets.ci_utility_deploy_key }}@github.com/davidjspooner/go-text.git".insteadOf "https://github.com/davidjspooner/go-text"
-          git config --global url."https://${{ secrets.ci_utility_deploy_key }}@github.com/davidjspooner".insteadOf "https://github.com/davidjspooner"
+          echo "${{ secrets.RO_DAVIDJSPOONER }}" | wc 
+          git config --global url."https://x-access-token:${{ secrets.RO_DAVIDJSPOONER }}@github.com/davidjspooner/go-text.git".insteadOf "https://github.com/davidjspooner/go-text"
+          git config --global url."https://x-access-token:${{ secrets.RO_DAVIDJSPOONER }}@github.com/davidjspooner".insteadOf "https://github.com/davidjspooner"
+          echo "GOPRIVATE=github.com/davidjspooner" >> $GITHUB_ENV
 
       - name: Update Go modules
         run: |
