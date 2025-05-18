@@ -1,0 +1,68 @@
+name: Release binaries
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          # Fetch all history for so that git rev-list can find the last tag
+          # This is needed for the git-update-tag command to work correctly
+          fetch-depth: 0
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+
+      - name: Get build environment
+        id: build-env
+        run: |
+          echo "Parsing build environment"
+          go run ./cmd/cicd-utilities git-suggest-build-env | tee -a $GITHUB_ENV
+
+      - name: Build binaries
+        run: |
+          echo "Building binaries without dependencies"
+          echo "BUILD_BRANCH=${{ steps.build-env.outputs.BUILD_BRANCH }}"
+          echo "BUILD_CONTEXT=${{ steps.build-env.outputs.BUILD_CONTEXT }}"
+          echo "BUILD_VERSION=${{ steps.build-env.outputs.BUILD_VERSION }}"
+          echo "BUILD_TIME=${{ steps.build-env.outputs.BUILD_TIME }}"
+          rm -rf dist
+          mkdir -p dist
+          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/cicd-utilities-amd64 ./cmd/cicd-utilities
+          GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/cicd-utilities-arm64 ./cmd/cicd-utilities
+
+      - name: Compress binaries
+        run: |
+          echo "Compressing binaries"
+          set | grep BUILD
+          go run ./cmd/cicd-utilities compress \
+            --replace \
+            --format zip \
+            dist/cicd-utilities-amd64 \
+            dist/cicd-utilities-arm64
+
+      - name: Checksum
+        run: |
+          echo "Calculating checksum"
+          go run ./cmd/cicd-utilities checksum \
+            --combined-file dist/checksums.txt \
+            --algorithm sha256 \
+            dist/cicd-utilities-*.zip 
+
+      - name: Create draft release
+        run: |
+          echo "Creating draft release"
+          go run ./cmd/cicd-utilities github-release \
+            --name "Release ${BUILD_VERSION}" \
+            --draft \
+            --body "#TODO create body" \
+            --verbse \
+            dist/cicd-utilities-*.zip           
+        env:
+          GITHUB_REPO: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

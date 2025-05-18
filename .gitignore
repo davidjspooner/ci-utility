@@ -1,0 +1,4 @@
+__debug_bin*
+dist
+pkg/*.zip
+coverage.out
