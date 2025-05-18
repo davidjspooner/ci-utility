@@ -78,6 +78,6 @@ jobs:
       - name: Increment tag if needed (main branch only)
         run: |
           echo "Incrementing tag if needed"
-          go run ./cmd/ci-utility git-update-tag --prefix=v --verbose
+          go run ./cmd/ci-utility git update-tag --prefix=v --verbose
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
