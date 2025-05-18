@@ -28,7 +28,7 @@ jobs:
       - name: Update Go modules
         run: |
           echo "Updating Go modules"
-          go get -u ./...
+          GOPRIVATE=github.com/davidjspooner go get -u ./...
           go mod tidy
       - name: Run tests
         run: |
