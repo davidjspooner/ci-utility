@@ -21,9 +21,8 @@ jobs:
 
       - name: Configure Git for private module access
         run: |
-          echo "${{ secrets.RO_DAVIDJSPOONER }}" | wc 
           git config --global url."https://x-access-token:${{ secrets.RO_DAVIDJSPOONER }}@github.com/davidjspooner/go-text.git".insteadOf "https://github.com/davidjspooner/go-text"
-          git config --global url."https://x-access-token:${{ secrets.RO_DAVIDJSPOONER }}@github.com/davidjspooner".insteadOf "https://github.com/davidjspooner"
+          # git config --global url."https://x-access-token:${{ secrets.RO_DAVIDJSPOONER }}@github.com/davidjspooner".insteadOf "https://github.com/davidjspooner"
           echo "GOPRIVATE=github.com/davidjspooner" >> $GITHUB_ENV
 
       - name: Update Go modules
@@ -50,6 +49,8 @@ jobs:
           git status
           git commit -m "fix: Update Go modules and tidy" || echo "No changes to commit"
           git push || echo "No changes to push"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   update-tag:
     runs-on: ubuntu-latest
     needs: update-versions-and-test
@@ -70,9 +71,8 @@ jobs:
 
       - name: Configure Git for private module access
         run: |
-          echo "${{ secrets.RO_DAVIDJSPOONER }}" | wc 
           git config --global url."https://x-access-token:${{ secrets.RO_DAVIDJSPOONER }}@github.com/davidjspooner/go-text.git".insteadOf "https://github.com/davidjspooner/go-text"
-          git config --global url."https://x-access-token:${{ secrets.RO_DAVIDJSPOONER }}@github.com/davidjspooner".insteadOf "https://github.com/davidjspooner"
+          # git config --global url."https://x-access-token:${{ secrets.RO_DAVIDJSPOONER }}@github.com/davidjspooner".insteadOf "https://github.com/davidjspooner"
           echo "GOPRIVATE=github.com/davidjspooner" >> $GITHUB_ENV
           
       - name: Increment tag if needed (main branch only)
