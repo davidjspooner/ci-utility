@@ -46,6 +46,7 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email ""
           git add .
+          git status
           git commit -m "fix: Update Go modules and tidy" || echo "No changes to commit"
   update-tag:
     runs-on: ubuntu-latest
@@ -67,6 +68,6 @@ jobs:
       - name: Increment tag if needed (main branch only)
         run: |
           echo "Incrementing tag if needed"
-          go run ./cmd/cicd-utilities git-update-tag --prefix=v --verbose
+          go run ./cmd/ci-utility git-update-tag --prefix=v --verbose
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
