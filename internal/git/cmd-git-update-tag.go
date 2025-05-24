@@ -9,6 +9,7 @@ import (
 	"github.com/davidjspooner/ci-utility/pkg/semantic"
 )
 
+// BumpGitTagOptions holds options for bumping git tags.
 type BumpGitTagOptions struct {
 	Prefix string `flag:"--prefix,Prefix string"`
 	Suffix string `flag:"--suffix,Suffix string"`
@@ -16,6 +17,7 @@ type BumpGitTagOptions struct {
 	Remote string `flag:"--remote,Remote to push the tag to"`
 }
 
+// generateNewTag creates a new tag string based on the prefix, suffix, current version, and bump reason.
 func generateNewTag(prefix, suffix string, currentVersion semantic.Version, reason string) (string, error) {
 	// Increment the version
 	newVersion, err := currentVersion.Increment(reason)
@@ -28,6 +30,7 @@ func generateNewTag(prefix, suffix string, currentVersion semantic.Version, reas
 	return newTag, nil
 }
 
+// applyNewTag creates and pushes the new tag, unless DryRun is set.
 func applyNewTag(_ context.Context, newTag string, option *BumpGitTagOptions) error {
 	if option.DryRun {
 		slog.Info("--dry-run", "newTag", newTag)
@@ -46,6 +49,7 @@ func applyNewTag(_ context.Context, newTag string, option *BumpGitTagOptions) er
 	return nil
 }
 
+// executeBumpGitTag determines the next version and applies a new tag based on commit messages.
 func executeBumpGitTag(ctx context.Context, option *BumpGitTagOptions, args []string) error {
 
 	// Get the current branch
@@ -90,6 +94,7 @@ func executeBumpGitTag(ctx context.Context, option *BumpGitTagOptions, args []st
 	return applyNewTag(ctx, newTag, option)
 }
 
+// getCommitsSinceTag returns commit messages and raw commits since the given tag.
 func getCommitsSinceTag(latestTag string) ([]string, []string, error) {
 	commitMessages, err := Run("log", fmt.Sprintf("%s..HEAD", latestTag), "--pretty=format:%s")
 	validCommitMessages := []string{}
@@ -106,6 +111,7 @@ func getCommitsSinceTag(latestTag string) ([]string, []string, error) {
 	return validCommitMessages, commits, nil
 }
 
+// getLatestTagAndVersion finds the latest tag and its semantic version for the given branch.
 func getLatestTagAndVersion(_ context.Context, branch string) (string, semantic.Version, error) {
 	commits, err := Run("rev-list", "--tags", "--no-walk", "--abbrev=0", "--date-order", branch)
 	if err != nil {

@@ -11,12 +11,14 @@ import (
 	"path"
 )
 
+// ChecksumOptions holds options for the checksum command.
 type ChecksumOptions struct {
 	Algorithm    string `flag:"--algorithm,Checksum algorithm (e.g., sha256, md5)"`
 	Extension    string `flag:"--extension,File extension for individual checksum files"`
 	CombinedFile string `flag:"--combined-file,Write all checksums to a single file"`
 }
 
+// executeChecksum generates checksums for the specified files using the provided options.
 func executeChecksum(ctx context.Context, option *ChecksumOptions, args []string) error {
 
 	if len(args) < 1 {
@@ -72,6 +74,7 @@ func executeChecksum(ctx context.Context, option *ChecksumOptions, args []string
 	return nil
 }
 
+// generateChecksum computes the checksum of a file using the specified algorithm.
 func generateChecksum(file string, algorithm string) (string, error) {
 	stat, err := os.Stat(file)
 	if err != nil {
