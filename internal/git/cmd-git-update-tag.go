@@ -28,7 +28,7 @@ func generateNewTag(prefix, suffix string, currentVersion semantic.Version, reas
 	return newTag, nil
 }
 
-func applyNewTag(ctx context.Context, newTag string, option *BumpGitTagOptions) error {
+func applyNewTag(_ context.Context, newTag string, option *BumpGitTagOptions) error {
 	if option.DryRun {
 		slog.Info("--dry-run", "newTag", newTag)
 		return nil

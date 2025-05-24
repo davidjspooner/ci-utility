@@ -1,7 +1,7 @@
 package archive
 
 import (
-	"github.com/davidjspooner/go-text/pkg/cmd"
+	"github.com/davidjspooner/go-text-cli/pkg/cmd"
 )
 
 func Commands() []cmd.Command {

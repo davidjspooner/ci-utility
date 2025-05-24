@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/davidjspooner/ci-utility/pkg/semantic"
-	"github.com/davidjspooner/go-text/pkg/cmd"
+	"github.com/davidjspooner/go-text-cli/pkg/cmd"
 )
 
 type GetGitEnvOptions struct {

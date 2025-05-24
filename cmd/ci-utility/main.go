@@ -9,7 +9,7 @@ import (
 	"github.com/davidjspooner/ci-utility/internal/git"
 	"github.com/davidjspooner/ci-utility/internal/github"
 	"github.com/davidjspooner/ci-utility/internal/template"
-	"github.com/davidjspooner/go-text/pkg/cmd"
+	"github.com/davidjspooner/go-text-cli/pkg/cmd"
 )
 
 type GlobalOptions struct {
