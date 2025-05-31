@@ -6,7 +6,7 @@ import "context"
 type GoDocumentation struct{}
 
 func (d *GoDocumentation) Name() string { return "go_documentation" }
-func (d *GoDocumentation) Run(ctx context.Context, meta *ProjectMeta) ([]Result, error) {
+func (d *GoDocumentation) Run(ctx context.Context, meta *ProjectMeta, options *ReviewOptions) ([]Result, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}

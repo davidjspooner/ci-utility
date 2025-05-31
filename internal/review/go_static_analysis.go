@@ -6,7 +6,7 @@ import "context"
 type GoStaticAnalysis struct{}
 
 func (s *GoStaticAnalysis) Name() string { return "go_static_analysis" }
-func (s *GoStaticAnalysis) Run(ctx context.Context, meta *ProjectMeta) ([]Result, error) {
+func (s *GoStaticAnalysis) Run(ctx context.Context, meta *ProjectMeta, options *ReviewOptions) ([]Result, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}

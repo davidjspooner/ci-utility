@@ -26,10 +26,10 @@ func (r *Group) FindByName(name string) Category {
 }
 
 // RunAll executes all registered Reviews.
-func (r *Group) Run(ctx context.Context, meta *ProjectMeta) ([]Result, error) {
+func (r *Group) Run(ctx context.Context, meta *ProjectMeta, options *ReviewOptions) ([]Result, error) {
 	var results []Result
 	for _, a := range r.Reviews {
-		results, err := a.Run(ctx, meta)
+		results, err := a.Run(ctx, meta, options)
 		if err != nil {
 			continue
 		}
@@ -47,11 +47,10 @@ var registry = &Group{}
 
 // RegisterDefaults preloads the registry with all built-in checks.
 func init() {
+	registry.Register(&GeneralProjectHygiene{})
+	registry.Register(&GoErrorHandling{})
 	registry.Register(&GoDocumentation{})
 	registry.Register(&GoTestCoverage{})
-	registry.Register(&GoErrorHandling{})
 	registry.Register(&GoCodeStructure{})
 	registry.Register(&GoStaticAnalysis{})
-	registry.Register(&GoProjectHygiene{})
-	registry.Register(&GoBuildReadiness{})
 }

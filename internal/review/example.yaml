@@ -1,6 +1,6 @@
 # score.yaml
 
-documentation:
+go_documentation:
   score: 68
   top_issues:
     - pkg/auth is missing GoDoc for exported type Authenticator
@@ -9,7 +9,7 @@ documentation:
     - pkg/config has incomplete documentation on LoadConfig
     - pkg/api has a comment mismatch with function signature on StartServer
 
-test_coverage:
+go_test_coverage:
   score: 72
   top_issues:
     - pkg/utils/strings.go has 0% coverage
@@ -18,7 +18,7 @@ test_coverage:
     - pkg/store lacks coverage for error-handling branches
     - pkg/json has untested helper MarshalStrict
 
-error_handling:
+go_error_handling:
   score: 78
   top_issues:
     - pkg/db ignores errors in Close()
@@ -27,7 +27,7 @@ error_handling:
     - cmd/server uses panic on startup without MustX pattern
     - pkg/client swallows errors in ParseResponse
 
-code_structure:
+go_code_structure:
   score: 70
   top_issues:
     - pkg/utils has function HandleX exceeding 150 lines
@@ -36,7 +36,7 @@ code_structure:
     - pkg/store contains a long switch statement that could be split
     - pkg/auth introduces a cyclic import with pkg/session
 
-static_analysis:
+go_static_analysis:
   score: 82
   top_issues:
     - pkg/db has unchecked error in rows.Next()
@@ -45,7 +45,7 @@ static_analysis:
     - pkg/store has inconsistent receiver naming
     - pkg/core calls panic() in exported function
 
-project_hygiene:
+general_project_hygiene:
   score: 88
   top_issues:
     - root is missing LICENSE file
@@ -53,12 +53,3 @@ project_hygiene:
     - .vscode/ should be gitignored
     - root is missing TODO.md file
     - scripts/ contains compiled binaries
-
-build_readiness:
-  score: 80
-  top_issues:
-    - cmd/server is missing main() in one target
-    - build/linux fails for GOARCH=arm64
-    - no version tag is detected in Git
-    - release artifacts are missing for windows/amd64
-    - pkg/api uses runtime.GOOS directly instead of flags or env

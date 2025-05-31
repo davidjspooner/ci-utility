@@ -6,7 +6,7 @@ import "context"
 type GoCodeStructure struct{}
 
 func (c *GoCodeStructure) Name() string { return "go_code_structure" }
-func (c *GoCodeStructure) Run(ctx context.Context, meta *ProjectMeta) ([]Result, error) {
+func (c *GoCodeStructure) Run(ctx context.Context, meta *ProjectMeta, options *ReviewOptions) ([]Result, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}

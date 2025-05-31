@@ -6,7 +6,7 @@ import "context"
 type GoErrorHandling struct{}
 
 func (e *GoErrorHandling) Name() string { return "go_error_handling" }
-func (e *GoErrorHandling) Run(ctx context.Context, meta *ProjectMeta) ([]Result, error) {
+func (e *GoErrorHandling) Run(ctx context.Context, meta *ProjectMeta, options *ReviewOptions) ([]Result, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}

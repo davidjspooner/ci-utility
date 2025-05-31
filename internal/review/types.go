@@ -12,7 +12,7 @@ type Result struct {
 // Category is the interface that each Category module must implement.
 type Category interface {
 	Name() string
-	Run(ctx context.Context, meta *ProjectMeta) ([]Result, error)
+	Run(ctx context.Context, meta *ProjectMeta, options *ReviewOptions) ([]Result, error)
 }
 
 // ProjectMeta contains data passed to Reviews.

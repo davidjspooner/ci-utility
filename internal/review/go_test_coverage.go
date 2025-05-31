@@ -6,7 +6,7 @@ import "context"
 type GoTestCoverage struct{}
 
 func (t *GoTestCoverage) Name() string { return "go_test_coverage" }
-func (t *GoTestCoverage) Run(ctx context.Context, meta *ProjectMeta) ([]Result, error) {
+func (t *GoTestCoverage) Run(ctx context.Context, meta *ProjectMeta, options *ReviewOptions) ([]Result, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
