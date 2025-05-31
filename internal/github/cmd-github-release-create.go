@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-type GithubReleaseOptions struct {
+type GithubReleaseCreateOptions struct {
 	TagName    string `flag:"--tag,Tag name for the release"`
 	Name       string `flag:"--name,Name/Title of the release"`
 	Body       string `flag:"--body,Description of the release"`
@@ -18,7 +18,7 @@ type GithubReleaseOptions struct {
 	Prerelease bool   `flag:"--prerelease,Mark the release as a prerelease"`
 }
 
-func executeGithubRelease(ctx context.Context, option *GithubReleaseOptions, args []string) error {
+func executeGithubReleaseCreate(ctx context.Context, option *GithubReleaseCreateOptions, args []string) error {
 
 	files, err := globFiles(args)
 	if err != nil {

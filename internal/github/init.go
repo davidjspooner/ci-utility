@@ -11,18 +11,35 @@ func Commands() []cmd.Command {
 		nil,
 		&cmd.NoopOptions{},
 	)
-	cmd1 := cmd.NewCommand(
-		"release",
+	releaseCreate := cmd.NewCommand(
+		"create",
 		"Create a GitHub release",
-		executeGithubRelease,
-		&GithubReleaseOptions{},
+		executeGithubReleaseCreate,
+		&GithubReleaseCreateOptions{},
 	)
-	cmd2 := cmd.NewCommand(
-		"update-pull-request",
+	prUpdate := cmd.NewCommand(
+		"update",
 		"Update a GitHub pull request with the latest changes from the base branch",
 		executeUpdateGithubPRMeta,
 		&GithubPRUpdateOptions{},
 	)
-	githubCommand.SubCommands().MustAdd(cmd1, cmd2)
+
+	pullRequest := cmd.NewCommand(
+		"pull-request",
+		"GitHub pull request commands",
+		nil,
+		&cmd.NoopOptions{},
+	)
+	release := cmd.NewCommand(
+		"release",
+		"GitHub release commands",
+		nil,
+		&cmd.NoopOptions{},
+	)
+
+	pullRequest.SubCommands().MustAdd(prUpdate)
+	release.SubCommands().MustAdd(releaseCreate)
+
+	githubCommand.SubCommands().MustAdd(release, pullRequest)
 	return []cmd.Command{githubCommand}
 }
