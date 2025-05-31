@@ -1,0 +1,64 @@
+# score.yaml
+
+documentation:
+  score: 68
+  top_issues:
+    - pkg/auth is missing GoDoc for exported type Authenticator
+    - pkg/db has no README.md
+    - cmd/server lacks inline usage example in main.go
+    - pkg/config has incomplete documentation on LoadConfig
+    - pkg/api has a comment mismatch with function signature on StartServer
+
+test_coverage:
+  score: 72
+  top_issues:
+    - pkg/utils/strings.go has 0% coverage
+    - pkg/api/router.go has large uncovered block (lines 104–145)
+    - cmd/init has no test files
+    - pkg/store lacks coverage for error-handling branches
+    - pkg/json has untested helper MarshalStrict
+
+error_handling:
+  score: 78
+  top_issues:
+    - pkg/db ignores errors in Close()
+    - pkg/store returns plain errors.New without context
+    - pkg/api is missing Unwrap() on wrapped error type
+    - cmd/server uses panic on startup without MustX pattern
+    - pkg/client swallows errors in ParseResponse
+
+code_structure:
+  score: 70
+  top_issues:
+    - pkg/utils has function HandleX exceeding 150 lines
+    - pkg/core has too many exported symbols (22)
+    - pkg/db mixes connection, query, and migration concerns in one package
+    - pkg/store contains a long switch statement that could be split
+    - pkg/auth introduces a cyclic import with pkg/session
+
+static_analysis:
+  score: 82
+  top_issues:
+    - pkg/db has unchecked error in rows.Next()
+    - pkg/api uses ineffective defer inside a loop
+    - cmd/init uses deprecated ioutil.ReadFile
+    - pkg/store has inconsistent receiver naming
+    - pkg/core calls panic() in exported function
+
+project_hygiene:
+  score: 88
+  top_issues:
+    - root is missing LICENSE file
+    - test/ directory in pkg/tools is empty
+    - .vscode/ should be gitignored
+    - root is missing TODO.md file
+    - scripts/ contains compiled binaries
+
+build_readiness:
+  score: 80
+  top_issues:
+    - cmd/server is missing main() in one target
+    - build/linux fails for GOARCH=arm64
+    - no version tag is detected in Git
+    - release artifacts are missing for windows/amd64
+    - pkg/api uses runtime.GOOS directly instead of flags or env

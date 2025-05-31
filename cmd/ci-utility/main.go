@@ -8,6 +8,7 @@ import (
 	"github.com/davidjspooner/ci-utility/internal/archive"
 	"github.com/davidjspooner/ci-utility/internal/git"
 	"github.com/davidjspooner/ci-utility/internal/github"
+	"github.com/davidjspooner/ci-utility/internal/review"
 	"github.com/davidjspooner/ci-utility/internal/template"
 	"github.com/davidjspooner/go-text-cli/pkg/cmd"
 )
@@ -30,6 +31,7 @@ func main() {
 	archiveCommands := archive.Commands()
 	githubCommands := github.Commands()
 	templateCommands := template.Commands()
+	reviewCommands := review.Commands()
 
 	subcommands := cmd.RootCommand.SubCommands()
 	subcommands.MustAdd(
@@ -38,6 +40,7 @@ func main() {
 		archiveCommands,
 		githubCommands,
 		templateCommands,
+		reviewCommands,
 	)
 
 	err := cmd.Run(context.Background(), os.Args[1:])
