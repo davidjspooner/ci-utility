@@ -44,7 +44,7 @@ jobs:
           echo "BUILD_TIME=${BUILD_TIME}"
           rm -rf dist
           mkdir -p dist
-          go run ./cmd/ci-utility matrix exec \
+          go run ./cmd/ci-utility matrix run \
             -d GOOS=linux \
             -d GOARCH=amd64 \
             -d CGO_ENABLED=0 \
