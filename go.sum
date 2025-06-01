@@ -1,5 +1,5 @@
-github.com/davidjspooner/go-text-cli v0.0.0-20250601200858-e4a855374606 h1:YS8qSyhyyp+UoNbtJa4EZovurzfM9zzPPU8IrM9Ivcw=
-github.com/davidjspooner/go-text-cli v0.0.0-20250601200858-e4a855374606/go.mod h1:LuXSCWfIap/2bqTBBQckgSIYyTnyohp3jFHW+UrQSZU=
+github.com/davidjspooner/go-text-cli v0.0.0-20250601210900-5a04762b687b h1:2eHIw1prVB9uTPhhRTZ8s4uWyago3WwzgL2x0+NYiCY=
+github.com/davidjspooner/go-text-cli v0.0.0-20250601210900-5a04762b687b/go.mod h1:LuXSCWfIap/2bqTBBQckgSIYyTnyohp3jFHW+UrQSZU=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
