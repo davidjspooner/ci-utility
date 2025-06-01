@@ -46,11 +46,18 @@ jobs:
           mkdir -p dist
           go run ./cmd/ci-utility matrix run \
             -d GOOS=linux \
-            -d GOARCH=amd64 \
+            -d GOARCH=amd64,arm64 \
             -d CGO_ENABLED=0 \
             -d CMD=ci-utility \
             -- \
             go build -ldflags="-s -w" -o 'dist/${CMD}-${GOOS}-${GOARCH}' './cmd/${CMD}'
+
+                  - name: List distribution files
+      - name: Check Files
+        run: |
+          echo "Listing all files"
+          ls -lR 
+
 
       - name: Compress binaries
         run: |
@@ -59,7 +66,7 @@ jobs:
           go run ./cmd/ci-utility archive compress \
             --remove-original \
             --format zip \
-            dist/cicd-utility-*
+            dist/ci-utility-*
 
       - name: Checksum
         run: |
@@ -67,7 +74,7 @@ jobs:
           go run ./cmd/ci-utility archive checksum \
             --combined-file dist/checksums.txt \
             --algorithm sha256 \
-            dist/cicd-utility-*.zip 
+            dist/ci-utility-*.zip 
 
       - name: List distribution files
         run: |
