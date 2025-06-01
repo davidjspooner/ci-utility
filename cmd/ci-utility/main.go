@@ -8,6 +8,7 @@ import (
 	"github.com/davidjspooner/ci-utility/internal/archive"
 	"github.com/davidjspooner/ci-utility/internal/git"
 	"github.com/davidjspooner/ci-utility/internal/github"
+	"github.com/davidjspooner/ci-utility/internal/matrix"
 	"github.com/davidjspooner/ci-utility/internal/review"
 	"github.com/davidjspooner/ci-utility/internal/template"
 	"github.com/davidjspooner/go-text-cli/pkg/cmd"
@@ -22,7 +23,7 @@ func main() {
 		func(ctx context.Context, options *GlobalOptions, args []string) error {
 			err := options.LogOptions.SetupSLOG()
 			if err != nil {
-				slog.Error("failed to setup logger", "error", err)
+				slog.ErrorContext(ctx, "failed to setup logger", "error", err)
 				return err
 			}
 			err = cmd.ShowHelpForMissingSubcommand(ctx)
@@ -37,6 +38,7 @@ func main() {
 	githubCommands := github.Commands()
 	templateCommands := template.Commands()
 	reviewCommands := review.Commands()
+	matrixCommands := matrix.Commands()
 
 	subcommands := cmd.RootCommand.SubCommands()
 	subcommands.MustAdd(
@@ -46,11 +48,13 @@ func main() {
 		githubCommands,
 		templateCommands,
 		reviewCommands,
+		matrixCommands,
 	)
 
-	err := cmd.Run(context.Background(), os.Args[1:])
+	ctx := context.Background()
+	err := cmd.Run(ctx, os.Args[1:])
 	if err != nil {
-		slog.Error(err.Error())
+		slog.ErrorContext(ctx, err.Error())
 		os.Exit(1)
 	}
 }

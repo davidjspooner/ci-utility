@@ -57,7 +57,7 @@ func executeChecksum(ctx context.Context, option *ChecksumOptions, args []string
 				return fmt.Errorf("failed to create checksum file: %v", err)
 			}
 			_, err = fmt.Fprintf(seperateFile, "%s  %s\n", checksum, baseFile)
-			slog.Debug("Checksum", "checksum", checksum, "file", baseFile)
+			slog.DebugContext(ctx, "Checksum", "checksum", checksum, "file", baseFile)
 			seperateFile.Close()
 			if err != nil {
 				return fmt.Errorf("failed to write checksum file: %v", err)

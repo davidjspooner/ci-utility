@@ -31,9 +31,9 @@ func generateNewTag(prefix, suffix string, currentVersion semantic.Version, reas
 }
 
 // applyNewTag creates and pushes the new tag, unless DryRun is set.
-func applyNewTag(_ context.Context, newTag string, option *BumpGitTagOptions) error {
+func applyNewTag(ctx context.Context, newTag string, option *BumpGitTagOptions) error {
 	if option.DryRun {
-		slog.Info("--dry-run", "newTag", newTag)
+		slog.InfoContext(ctx, "--dry-run", "newTag", newTag)
 		return nil
 	}
 
@@ -45,7 +45,7 @@ func applyNewTag(_ context.Context, newTag string, option *BumpGitTagOptions) er
 		return fmt.Errorf("failed to push tag: %v", err)
 	}
 
-	slog.Info("Tag created and pushed", "tag", newTag)
+	slog.InfoContext(ctx, "Tag created and pushed", "tag", newTag)
 	return nil
 }
 
@@ -64,7 +64,7 @@ func executeBumpGitTag(ctx context.Context, option *BumpGitTagOptions, args []st
 		return fmt.Errorf("failed to get the latest tag: %v", err)
 	}
 
-	slog.Info("Current", "tag", latestTag, "version", currentVersion.String())
+	slog.InfoContext(ctx, "Current", "tag", latestTag, "version", currentVersion.String())
 
 	// Get commit messages since the latest tag
 	validCommitMessages, commits, err := getCommitsSinceTag(latestTag)
@@ -88,7 +88,7 @@ func executeBumpGitTag(ctx context.Context, option *BumpGitTagOptions, args []st
 		return err
 	}
 
-	slog.Debug("Increment", "reason", reason)
+	slog.DebugContext(ctx, "Increment", "reason", reason)
 
 	// Apply the new tag
 	return applyNewTag(ctx, newTag, option)
@@ -112,7 +112,7 @@ func getCommitsSinceTag(latestTag string) ([]string, []string, error) {
 }
 
 // getLatestTagAndVersion finds the latest tag and its semantic version for the given branch.
-func getLatestTagAndVersion(_ context.Context, branch string) (string, semantic.Version, error) {
+func getLatestTagAndVersion(ctx context.Context, branch string) (string, semantic.Version, error) {
 	commits, err := Run("rev-list", "--tags", "--no-walk", "--abbrev=0", "--date-order", branch)
 	if err != nil {
 		return "", semantic.Version{}, fmt.Errorf("failed to get latest tags: %v", err)
@@ -120,7 +120,7 @@ func getLatestTagAndVersion(_ context.Context, branch string) (string, semantic.
 	var bestVersion semantic.Version
 	var bestTag string
 
-	slog.Debug("Latest commits found", "commits", commits)
+	slog.DebugContext(ctx, "Latest commits found", "commits", commits)
 	commitList := splitLines(commits)
 	for _, commit := range commitList {
 		if commit == "" {
@@ -131,15 +131,15 @@ func getLatestTagAndVersion(_ context.Context, branch string) (string, semantic.
 		if err != nil {
 			continue
 		}
-		slog.Debug("Checked commit is ancestor", "commit", commit, "branch", branch, "checkCmd", checkCmd)
+		slog.DebugContext(ctx, "Checked commit is ancestor", "commit", commit, "branch", branch, "checkCmd", checkCmd)
 		tagsForCommit, err := Run("tag", "--contains", commit)
 		if err != nil {
 			continue
 		}
-		slog.Debug("Tags for commit found", "commit", commit, "tags", tagsForCommit)
+		slog.DebugContext(ctx, "Tags for commit found", "commit", commit, "tags", tagsForCommit)
 
 		for _, tag := range splitLines(tagsForCommit) {
-			slog.Debug("Tag found", "tag", tag)
+			slog.DebugContext(ctx, "Tag found", "tag", tag)
 			_, _, version, err := semantic.ExtractVersionFromTag(tag)
 			if err != nil {
 				continue

@@ -53,21 +53,21 @@ func executeGithubReleaseCreate(ctx context.Context, option *GithubReleaseCreate
 	var release ReleaseResponse
 	err = client.PostJSON(ctx, "/repos/{owner}/{repo}/releases", releaseReq, &release)
 	if err != nil {
-		slog.Error("Failed to create release", "tag", option.TagName, "error", err)
+		slog.ErrorContext(ctx, "Failed to create release", "tag", option.TagName, "error", err)
 		os.Exit(1)
 	}
 
-	slog.Info("Created release", "id", release.ID, "tag", option.TagName, "name", release.Name, "url", release.URL)
+	slog.InfoContext(ctx, "Created release", "id", release.ID, "tag", option.TagName, "name", release.Name, "url", release.URL)
 
 	for _, path := range files {
 
 		var asset AssetResponse
 		err = client.UploadBinaryFile(ctx, release.ID, path, &asset)
 		if err != nil {
-			slog.Error("Failed to upload asset", "name", path, "error", err)
+			slog.ErrorContext(ctx, "Failed to upload asset", "name", path, "error", err)
 			os.Exit(1)
 		}
-		slog.Info("Uploaded asset", "name", asset.Name, "url", asset.URL)
+		slog.InfoContext(ctx, "Uploaded asset", "name", asset.Name, "url", asset.URL)
 	}
 
 	return nil

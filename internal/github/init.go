@@ -5,11 +5,9 @@ import (
 )
 
 func Commands() []cmd.Command {
-	githubCommand := cmd.NewCommand(
+	githubCommand := cmd.NewGroupCommand(
 		"github",
 		"GitHub commands",
-		nil,
-		&cmd.NoopOptions{},
 	)
 	releaseCreate := cmd.NewCommand(
 		"create",
@@ -24,17 +22,13 @@ func Commands() []cmd.Command {
 		&GithubPRUpdateOptions{},
 	)
 
-	pullRequest := cmd.NewCommand(
+	pullRequest := cmd.NewGroupCommand(
 		"pull-request",
 		"GitHub pull request commands",
-		nil,
-		&cmd.NoopOptions{},
 	)
-	release := cmd.NewCommand(
+	release := cmd.NewGroupCommand(
 		"release",
 		"GitHub release commands",
-		nil,
-		&cmd.NoopOptions{},
 	)
 
 	pullRequest.SubCommands().MustAdd(prUpdate)

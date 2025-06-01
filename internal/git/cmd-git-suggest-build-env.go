@@ -40,7 +40,7 @@ func executeGetGitEnv(ctx context.Context, options *GetGitEnvOptions, args []str
 		return fmt.Errorf("failed to get the latest tag: %v", err)
 	}
 
-	slog.Info("Current", "tag", latestTag, "version", currentVersion.String())
+	slog.InfoContext(ctx, "Current", "tag", latestTag, "version", currentVersion.String())
 
 	// Get commit messages since the latest tag
 	validCommitMessages, commits, err := getCommitsSinceTag(latestTag)

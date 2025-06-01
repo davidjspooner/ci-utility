@@ -38,7 +38,7 @@ func compressCommand(ctx context.Context, option *CompressOptions, args []string
 		if err != nil {
 			return fmt.Errorf("error compressing file %s: %v", path, err)
 		}
-		slog.Debug("Compressed file successfully", "path", path, "format", option.Format)
+		slog.DebugContext(ctx, "Compressed file successfully", "path", path, "format", option.Format)
 	}
 	if option.RemoveOriginal {
 		// Call the function to remove original files
@@ -46,10 +46,10 @@ func compressCommand(ctx context.Context, option *CompressOptions, args []string
 			err = removeOriginal(path)
 
 			if err != nil {
-				slog.Error("Error removing original file", "path", path, "error", err)
+				slog.ErrorContext(ctx, "Error removing original file", "path", path, "error", err)
 			}
 		}
-		slog.Debug("Original files removed successfully", "paths", paths)
+		slog.DebugContext(ctx, "Original files removed successfully", "paths", paths)
 	}
 	return nil
 }

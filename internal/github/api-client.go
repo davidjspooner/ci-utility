@@ -108,7 +108,7 @@ func (c *Client) DoJSON(ctx context.Context, method, path string, request interf
 	}
 	err = c.Do(ctx, method, fullURL, bodyReader, headers, response)
 	if err != nil {
-		slog.Warn("GitHub API request failed",
+		slog.WarnContext(ctx, "GitHub API request failed",
 			"method", method,
 			"path", path,
 			"request_body", string(b),
@@ -118,7 +118,7 @@ func (c *Client) DoJSON(ctx context.Context, method, path string, request interf
 		)
 		return err
 	}
-	slog.Debug("GitHub API request",
+	slog.DebugContext(ctx, "GitHub API request",
 		"method", method,
 		"path", path,
 		"request_body", string(b),
@@ -204,7 +204,7 @@ func (c *Client) UploadBinaryStream(ctx context.Context, releaseID int64, meta U
 
 	err = c.Do(ctx, http.MethodPost, u.String(), data, headers, response)
 	if err != nil {
-		slog.Warn("Failed to upload binary",
+		slog.WarnContext(ctx, "Failed to upload binary",
 			"release_id", releaseID,
 			"name", meta.Name,
 			"label", meta.Label,
@@ -215,7 +215,7 @@ func (c *Client) UploadBinaryStream(ctx context.Context, releaseID int64, meta U
 		)
 		return err
 	}
-	slog.Debug("Uploaded binary",
+	slog.DebugContext(ctx, "Uploaded binary",
 		"release_id", releaseID,
 		"name", meta.Name,
 		"label", meta.Label,

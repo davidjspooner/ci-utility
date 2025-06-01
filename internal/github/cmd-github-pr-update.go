@@ -49,7 +49,7 @@ func executeUpdateGithubPRMeta(ctx context.Context, option *GithubPRUpdateOption
 		return fmt.Errorf("error fetching PR title: %v", err)
 	}
 	if strings.Contains(prTitle, bump) {
-		slog.Info("PR title already contains the bump", "pr", option.PRNumber, "bump", bump)
+		slog.InfoContext(ctx, "PR title already contains the bump", "pr", option.PRNumber, "bump", bump)
 		return nil
 	}
 
@@ -57,7 +57,7 @@ func executeUpdateGithubPRMeta(ctx context.Context, option *GithubPRUpdateOption
 	newTitle := fmt.Sprintf("%s: update based on commits", bump)
 
 	if option.DryRun {
-		slog.Warn("--dry-run", "pr", option.PRNumber, "title", newTitle)
+		slog.WarnContext(ctx, "--dry-run", "pr", option.PRNumber, "title", newTitle)
 		return nil
 	}
 
@@ -93,7 +93,7 @@ func getCommitMessages(prNumber, token, repo string) []string {
 	return messages
 }
 
-func updatePullRequest(_ context.Context, prNumber, token, repo, title string) error {
+func updatePullRequest(ctx context.Context, prNumber, token, repo, title string) error {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/pulls/%s", repo, prNumber)
 
 	pr := struct {
@@ -117,7 +117,7 @@ func updatePullRequest(_ context.Context, prNumber, token, repo, title string) e
 		return fmt.Errorf("failed to update PR, status code: %d", resp.StatusCode)
 	}
 
-	slog.Info("Updated PR title", "pr", prNumber, "title", title)
+	slog.InfoContext(ctx, "Updated PR title", "pr", prNumber, "title", title)
 	return nil
 }
 
