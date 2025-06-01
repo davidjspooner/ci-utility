@@ -50,7 +50,7 @@ jobs:
             -d CGO_ENABLED=0 \
             -d CMD=ci-utility \
             -- \
-            go build -ldflags="-s -w" -o 'dist/${CMD}-${GOOS}-${GOARCH}' ./cmd/${CMD}
+            go build -ldflags="-s -w" -o 'dist/${CMD}-${GOOS}-${GOARCH}' './cmd/${CMD}'
 
       - name: Compress binaries
         run: |

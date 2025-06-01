@@ -1,4 +1,4 @@
-name: Update and Test
+name: Auto update and test
 
 on:
   workflow_dispatch:
