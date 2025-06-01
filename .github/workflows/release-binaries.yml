@@ -69,6 +69,11 @@ jobs:
             --algorithm sha256 \
             dist/cicd-utility-*.zip 
 
+      - name: List distribution files
+        run: |
+          echo "Listing distribution files"
+          ls -l dist
+
       - name: Create draft release
         run: |
           echo "Creating draft release"
