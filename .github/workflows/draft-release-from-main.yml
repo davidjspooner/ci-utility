@@ -45,10 +45,11 @@ jobs:
           rm -rf dist
           mkdir -p dist
           go run ./cmd/ci-utility matrix exec \
-            -d GOOS=linux 
-            -d GOARCH=amd64
-            -d CGO_ENABLED=0 
-            -d CMD=ci-utility
+            -d GOOS=linux \
+            -d GOARCH=amd64 \
+            -d CGO_ENABLED=0 \
+            -d CMD=ci-utility \
+            -- \
             go build -ldflags="-s -w" -o 'dist/${CMD}-${GOOS}-${GOARCH}'' ./cmd/${CMD}
 
       - name: Compress binaries
