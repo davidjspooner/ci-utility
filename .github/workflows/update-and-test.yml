@@ -72,8 +72,6 @@ jobs:
 
       - name: Configure Git for private module access
         run: |
-      - name: Configure Git for private module access
-        run: |
           git config --global url."https://x-access-token:${{ secrets.RO_DAVIDJSPOONER }}@github.com/davidjspooner/".insteadOf "https://github.com/davidjspooner/"
           git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}".insteadOf "https://github.com/${GITHUB_REPOSITORY}"
           echo "GOPRIVATE=github.com/davidjspooner" >> $GITHUB_ENV

@@ -33,7 +33,7 @@ jobs:
         id: build-env
         run: |
           echo "Generating build environment"
-          go run ./cmd/cicd-utilities git suggest-build-env | tee -a $GITHUB_ENV
+          go run ./cmd/cicd-utility git suggest-build-env | tee -a $GITHUB_ENV
 
       - name: Build binaries
         run: |
@@ -44,31 +44,31 @@ jobs:
           echo "BUILD_TIME=${BUILD_TIME}"
           rm -rf dist
           mkdir -p dist
-          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/cicd-utilities-amd64 ./cmd/cicd-utilities
-          GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/cicd-utilities-arm64 ./cmd/cicd-utilities
+          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/cicd-utility-amd64 ./cmd/cicd-utility
+          GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/cicd-utility-arm64 ./cmd/cicd-utility
 
       - name: Compress binaries
         run: |
           echo "Compressing binaries"
           set | grep BUILD
-          go run ./cmd/cicd-utilities compress \
+          go run ./cmd/cicd-utility compress \
             --replace \
             --format zip \
-            dist/cicd-utilities-amd64 \
-            dist/cicd-utilities-arm64
+            dist/cicd-utility-amd64 \
+            dist/cicd-utility-arm64
 
       - name: Checksum
         run: |
           echo "Calculating checksum"
-          go run ./cmd/cicd-utilities checksum \
+          go run ./cmd/cicd-utility checksum \
             --combined-file dist/checksums.txt \
             --algorithm sha256 \
-            dist/cicd-utilities-*.zip 
+            dist/cicd-utility-*.zip 
 
       - name: Create draft release
         run: |
           echo "Creating draft release"
-          go run ./cmd/cicd-utilities github release create\
+          go run ./cmd/cicd-utility github release create\
             --name "${BUILD_VERSION}" \
             --draft \
             --body "#TODO create body" \
