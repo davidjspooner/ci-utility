@@ -3,7 +3,7 @@ module github.com/davidjspooner/ci-utility
 go 1.24.2
 
 require (
-	github.com/davidjspooner/go-text-cli v0.0.0-20250601185510-63b353695d6b
+	github.com/davidjspooner/go-text-cli v0.0.0-20250601193129-e4e58690e881
 	gopkg.in/yaml.v3 v3.0.1
 )
 
