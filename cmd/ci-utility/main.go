@@ -21,6 +21,11 @@ func main() {
 	root := cmd.NewCommand("", "A utility for CI/CD operations",
 		func(ctx context.Context, options *GlobalOptions, args []string) error {
 			err := options.LogOptions.SetupSLOG()
+			if err != nil {
+				slog.Error("failed to setup logger", "error", err)
+				return err
+			}
+			err = cmd.ShowHelpForMissingSubcommand(ctx)
 			return err
 		}, &GlobalOptions{LogOptions: cmd.LogOptions{Level: "info"}},
 		cmd.LogicalGroup)

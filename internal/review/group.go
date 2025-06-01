@@ -7,17 +7,17 @@ import (
 
 // Group holds and runs Reviews.
 type Group struct {
-	Reviews []Category
+	Category []Category
 }
 
 // Register adds a new Review to the registry.
 func (r *Group) Register(a Category) {
-	r.Reviews = append(r.Reviews, a)
+	r.Category = append(r.Category, a)
 }
 
 // FindByName returns a Review by its name.
 func (r *Group) FindByName(name string) Category {
-	for _, a := range r.Reviews {
+	for _, a := range r.Category {
 		if a.Name() == name {
 			return a
 		}
@@ -26,31 +26,31 @@ func (r *Group) FindByName(name string) Category {
 }
 
 // RunAll executes all registered Reviews.
-func (r *Group) Run(ctx context.Context, meta *ProjectMeta, options *ReviewOptions) ([]Result, error) {
-	var results []Result
-	for _, a := range r.Reviews {
+func (r *Group) Run(ctx context.Context, meta *ProjectMeta, options *ReviewOptions) ([]*Result, error) {
+	var allResults []*Result
+	for _, a := range r.Category {
 		results, err := a.Run(ctx, meta, options)
 		if err != nil {
 			continue
 		}
 		for _, result := range results {
-			if r.FindByName(result.Name) != nil {
-				return nil, fmt.Errorf("duplicate review name found: %s", result.Name)
+			for _, seen := range allResults {
+				if seen.Name == result.Name {
+					// If the result is already seen, skip it
+					return nil, fmt.Errorf("duplicate result found: %s", result.Name)
+				}
 			}
-			results = append(results, result)
+			allResults = append(allResults, result)
 		}
 	}
-	return results, nil
+	return allResults, nil
 }
 
 var registry = &Group{}
 
 // RegisterDefaults preloads the registry with all built-in checks.
 func init() {
+
 	registry.Register(&GeneralProjectHygiene{})
-	registry.Register(&GoErrorHandling{})
-	registry.Register(&GoDocumentation{})
-	registry.Register(&GoTestCoverage{})
-	registry.Register(&GoCodeStructure{})
-	registry.Register(&GoStaticAnalysis{})
+	registry.Register(&GoRoot{})
 }

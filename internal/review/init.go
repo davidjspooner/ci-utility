@@ -12,11 +12,9 @@ import (
 
 type ReviewOptions struct {
 	// Add any options specific to the review command here
-	RootPath    string `flag:"--root-path,Root directory of the project to review"`
-	ReportPath  string `flag:"--report-path,Path to save the review report"`
+	RootDir     string `flag:"--root-dir,Root directory of the project to review"`
+	Report      string `flag:"--report,Path to save the review report"`
 	TargetScore int    `flag:"--target-score,Target score for the review"`
-	Tolerate    string `flag:"--tolerate,Comma seperated list of categories to tolerate missing the target score"`
-	Skip        string `flag:"--skip,Comma seperated list of categories to skip in the review"`
 }
 
 func Commands() []cmd.Command {
@@ -25,14 +23,14 @@ func Commands() []cmd.Command {
 		"review proejct and generare a review.yaml file",
 		func(ctx context.Context, options *ReviewOptions, args []string) error {
 			meta := ProjectMeta{
-				RootPath: options.RootPath,
+				RootPath: options.RootDir,
 			}
 			results, err := registry.Run(ctx, &meta, options)
 			if err != nil {
 				return err
 			}
 
-			slices.SortFunc(results, func(a, b Result) int {
+			slices.SortFunc(results, func(a, b *Result) int {
 				return a.Score - b.Score
 			})
 
@@ -43,18 +41,21 @@ func Commands() []cmd.Command {
 				}
 			}
 
-			f, err := os.Create(options.ReportPath)
-			if err != nil {
-				return err
-			}
-			defer f.Close()
-			e := yaml.NewEncoder(f)
-			defer e.Close()
-			if err := e.Encode(results); err != nil {
-				return err
+			if options.Report != "" {
+				f, err := os.Create(options.Report)
+				if err != nil {
+					return err
+				}
+				defer f.Close()
+				e := yaml.NewEncoder(f)
+				defer e.Close()
+				if err := e.Encode(results); err != nil {
+					return err
+				}
+
+				fmt.Printf("Generated %s \n", options.Report)
 			}
 
-			fmt.Printf("Generated %s \n", options.ReportPath)
 			if len(failures) > 0 {
 				fmt.Printf("The following missed the target of %d:\n", options.TargetScore)
 				for _, failure := range failures {
@@ -66,8 +67,7 @@ func Commands() []cmd.Command {
 			return nil
 		},
 		&ReviewOptions{
-			RootPath:   ".",
-			ReportPath: "review.yaml",
+			RootDir: ".",
 		},
 	)
 	return []cmd.Command{

@@ -7,9 +7,13 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"mime"
 	"net/http"
 	"net/url"
+	"os"
 	"path"
+	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -40,7 +44,7 @@ func (c *Client) IsLogEnabled(ctx context.Context, level slog.Level) bool {
 	return c.slog.Enabled(ctx, level)
 }
 
-func (c *Client) Do(ctx context.Context, method, fullURL string, body io.Reader, contentType string, response interface{}) error {
+func (c *Client) Do(ctx context.Context, method, fullURL string, body io.Reader, headers http.Header, response interface{}) error {
 	fullURL = strings.ReplaceAll(fullURL, "{owner}", url.PathEscape(c.Owner))
 	fullURL = strings.ReplaceAll(fullURL, "{repo}", url.PathEscape(c.Repo))
 	if !strings.HasPrefix(fullURL, "http") {
@@ -54,8 +58,14 @@ func (c *Client) Do(ctx context.Context, method, fullURL string, body io.Reader,
 
 	req.Header.Set("Authorization", "Bearer "+c.Token)
 	req.Header.Set("Accept", "application/vnd.github+json")
-	if contentType != "" {
-		req.Header.Set("Content-Type", contentType)
+	for key, value := range headers {
+		for _, v := range value {
+			if key == "Content-Length" {
+				req.ContentLength, _ = strconv.ParseInt(v, 10, 64)
+				continue
+			}
+			req.Header.Add(key, v)
+		}
 	}
 
 	resp, err := c.HTTPClient.Do(req)
@@ -92,13 +102,30 @@ func (c *Client) DoJSON(ctx context.Context, method, path string, request interf
 		bodyReader = bytes.NewReader(b)
 	}
 	fullURL := c.BaseURL + path
-	err = c.Do(ctx, method, fullURL, bodyReader, "application/json", response)
-	if c.IsLogEnabled(ctx, slog.LevelDebug) {
-		//TODO log the request and responce details
-	} else if err != nil && c.IsLogEnabled(ctx, slog.LevelWarn) {
-		// log the error if any
+	headers := http.Header{
+		"Content-Type":   []string{"application/json"},
+		"Content-Length": []string{fmt.Sprintf("%d", len(b))},
 	}
-	return err
+	err = c.Do(ctx, method, fullURL, bodyReader, headers, response)
+	if err != nil {
+		slog.Warn("GitHub API request failed",
+			"method", method,
+			"path", path,
+			"request_body", string(b),
+			"response", response,
+			"full_url", fullURL,
+			"error", err,
+		)
+		return err
+	}
+	slog.Debug("GitHub API request",
+		"method", method,
+		"path", path,
+		"request_body", string(b),
+		"response", response,
+		"full_url", fullURL,
+	)
+	return nil
 }
 
 func (c *Client) GetJSON(ctx context.Context, path string, response interface{}) error {
@@ -118,16 +145,38 @@ func (c *Client) DeleteJSON(ctx context.Context, path string, response interface
 }
 
 type UploadMeta struct {
-	ReleaseID int64
-	Name      string
-	Label     string
-	UploadURL string // Optional, if provided will be used instead of constructing the URL
+	Name        string
+	Label       string
+	ContentType string // Optional, if provided will be used instead of detecting from file extension
+	UploadURL   string // Optional, if provided will be used instead of constructing the URL
 }
 
-func (c *Client) UploadBinary(ctx context.Context, meta UploadMeta, contentType string, data io.Reader, response interface{}) error {
+func (c *Client) UploadBinaryFile(ctx context.Context, releaseID int64, fileName string, response interface{}) error {
+	file, err := os.Open(fileName)
+	if err != nil {
+		return fmt.Errorf("failed to open file %s: %w", fileName, err)
+	}
+	defer file.Close()
+	length, err := file.Seek(0, io.SeekEnd)
+	if err != nil {
+		return fmt.Errorf("failed to seek file %s: %w", fileName, err)
+	}
+	if _, err := file.Seek(0, io.SeekStart); err != nil {
+		return fmt.Errorf("failed to reset file %s: %w", fileName, err)
+	}
+	meta := UploadMeta{
+		Name: filepath.Base(fileName),
+	}
+	if meta.Name == "" {
+		meta.Name = path.Base(fileName)
+	}
+	return c.UploadBinaryStream(ctx, releaseID, meta, file, length, response)
+}
+
+func (c *Client) UploadBinaryStream(ctx context.Context, releaseID int64, meta UploadMeta, data io.Reader, length int64, response interface{}) error {
 	base := meta.UploadURL
 	if base == "" {
-		base = fmt.Sprintf("https://uploads.github.com/repos/%s/%s/releases/%d/assets", url.PathEscape(c.Owner), url.PathEscape(c.Repo), meta.ReleaseID)
+		base = fmt.Sprintf("https://uploads.github.com/repos/%s/%s/releases/%d/assets", url.PathEscape(c.Owner), url.PathEscape(c.Repo), releaseID)
 	}
 
 	u, err := url.Parse(base)
@@ -142,13 +191,39 @@ func (c *Client) UploadBinary(ctx context.Context, meta UploadMeta, contentType 
 	}
 	u.RawQuery = q.Encode()
 
-	err = c.Do(ctx, http.MethodPost, u.String(), data, contentType, response)
-	if c.IsLogEnabled(ctx, slog.LevelDebug) {
-		//TODO log the request and responce details
-	} else if err != nil && c.IsLogEnabled(ctx, slog.LevelWarn) {
-		// log the error if any
+	if meta.ContentType == "" {
+		meta.ContentType = mime.TypeByExtension(filepath.Ext(meta.Name))
+		if meta.ContentType == "" {
+			meta.ContentType = "application/octet-stream"
+		}
 	}
-	return err
+	headers := http.Header{
+		"Content-Type":   []string{meta.ContentType},
+		"Content-Length": []string{fmt.Sprintf("%d", length)},
+	}
+
+	err = c.Do(ctx, http.MethodPost, u.String(), data, headers, response)
+	if err != nil {
+		slog.Warn("Failed to upload binary",
+			"release_id", releaseID,
+			"name", meta.Name,
+			"label", meta.Label,
+			"url", u.String(),
+			"content_type", meta.ContentType,
+			"length", length,
+			"error", err,
+		)
+		return err
+	}
+	slog.Debug("Uploaded binary",
+		"release_id", releaseID,
+		"name", meta.Name,
+		"label", meta.Label,
+		"url", u.String(),
+		"content_type", meta.ContentType,
+		"length", length,
+	)
+	return nil
 
 }
 
