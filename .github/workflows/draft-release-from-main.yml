@@ -44,8 +44,12 @@ jobs:
           echo "BUILD_TIME=${BUILD_TIME}"
           rm -rf dist
           mkdir -p dist
-          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/cicd-utility-amd64 ./cmd/ci-utility
-          GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/cicd-utility-arm64 ./cmd/ci-utility
+          go run ./cmd/ci-utility matrix exec \
+            -d GOOS=linux 
+            -d GOARCH=amd64
+            -d CGO_ENABLED=0 
+            -d CMD=ci-utility
+            go build -ldflags="-s -w" -o 'dist/${CMD}-${GOOS}-${GOARCH}'' ./cmd/${CMD}
 
       - name: Compress binaries
         run: |
@@ -54,8 +58,7 @@ jobs:
           go run ./cmd/ci-utility archive compress \
             --remove-original \
             --format zip \
-            dist/cicd-utility-amd64 \
-            dist/cicd-utility-arm64
+            dist/cicd-utility-*
 
       - name: Checksum
         run: |

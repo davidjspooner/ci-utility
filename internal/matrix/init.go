@@ -7,15 +7,15 @@ import (
 func Commands() []cmd.Command {
 	group := cmd.NewGroupCommand(
 		"matrix",
-		"Run commands for an environment matrix ",
+		"Tools for an environment matrix ",
 	)
-	runCommand := cmd.NewCommand(
-		"run",
-		"Run commands for an environment matrix ",
-		executeMatrixRun,
+	execCommand := cmd.NewCommand(
+		"exec|run",
+		"Execute a command for each combintation of an environment matrix ",
+		doMatrixExecute,
 		&MatrixRunOptions{},
 	)
-	group.SubCommands().Add(runCommand)
+	group.SubCommands().Add(execCommand)
 	return []cmd.Command{
 		group,
 	}

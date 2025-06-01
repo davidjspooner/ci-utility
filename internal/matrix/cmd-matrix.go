@@ -18,7 +18,7 @@ type dimension struct {
 	Values []string
 }
 
-func runOneCommand(ctx context.Context, option *MatrixRunOptions, args []string) error {
+func executeOneCommand(ctx context.Context, option *MatrixRunOptions, args []string) error {
 	if len(args) == 0 {
 		slog.WarnContext(ctx, "No command provided, skipping execution")
 		return nil
@@ -38,7 +38,7 @@ func runOneCommand(ctx context.Context, option *MatrixRunOptions, args []string)
 	}
 
 	//run the command , copying stdout and stderr
-	slog.InfoContext(ctx, "Running command", "command", strings.Join(quotedCmdArgs, " "))
+	slog.InfoContext(ctx, "Executing command", "command", strings.Join(quotedCmdArgs, " "))
 	cmd := exec.CommandContext(ctx, cmdArgs[0], cmdArgs[1:]...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -49,7 +49,7 @@ func runOneCommand(ctx context.Context, option *MatrixRunOptions, args []string)
 	return nil
 }
 
-func executeMatrixRun(ctx context.Context, option *MatrixRunOptions, args []string) error {
+func doMatrixExecute(ctx context.Context, option *MatrixRunOptions, args []string) error {
 	dimensions := make([]dimension, 0, len(option.Dimension))
 	for _, dim := range option.Dimension {
 		parts := strings.SplitN(dim, "=", 2)
@@ -75,7 +75,7 @@ func executeMatrixRun(ctx context.Context, option *MatrixRunOptions, args []stri
 			os.Setenv(dimensions[dim].Name, dimensions[dim].Values[i])
 		}
 
-		err := runOneCommand(ctx, option, args)
+		err := executeOneCommand(ctx, option, args)
 		if err != nil {
 			return fmt.Errorf("error running command: %w", err)
 		}
@@ -92,5 +92,4 @@ func executeMatrixRun(ctx context.Context, option *MatrixRunOptions, args []stri
 			}
 		}
 	}
-	return nil
 }
