@@ -39,7 +39,7 @@ jobs:
         run: |
           echo "Building binaries without dependencies"
           echo "BUILD_BRANCH=${BUILD_BRANCH}"
-          echo "BUILD_CONTEXT=${BUILD_CONTEXT}}"
+          echo "BUILD_CONTEXT=${BUILD_CONTEXT}"
           echo "BUILD_VERSION=${BUILD_VERSION}"
           echo "BUILD_TIME=${BUILD_TIME}"
           rm -rf dist
@@ -51,7 +51,7 @@ jobs:
         run: |
           echo "Compressing binaries"
           set | grep BUILD
-          go run ./cmd/ci-utility compress \
+          go run ./cmd/ci-utility archive compress \
             --replace \
             --format zip \
             dist/cicd-utility-amd64 \
