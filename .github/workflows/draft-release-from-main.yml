@@ -20,9 +20,8 @@ jobs:
 
       - name: Configure Git for private module access
         run: |
-          echo "${{ secrets.RO_DAVIDJSPOONER }}" | wc 
-          git config --global url."https://x-access-token:${{ secrets.RO_DAVIDJSPOONER }}@github.com/davidjspooner/go-text.git".insteadOf "https://github.com/davidjspooner/go-text"
-          git config --global url."https://x-access-token:${{ secrets.RO_DAVIDJSPOONER }}@github.com/davidjspooner".insteadOf "https://github.com/davidjspooner"
+          git config --global url."https://x-access-token:${{ secrets.RO_DAVIDJSPOONER }}@github.com/davidjspooner/".insteadOf "https://github.com/davidjspooner/"
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}".insteadOf "https://github.com/${GITHUB_REPOSITORY}"
           echo "GOPRIVATE=github.com/davidjspooner" >> $GITHUB_ENV
 
       - name: Update Go modules
@@ -33,16 +32,16 @@ jobs:
       - name: Get build environment
         id: build-env
         run: |
-          echo "Parsing build environment"
-          go run ./cmd/cicd-utilities git-suggest-build-env | tee -a $GITHUB_ENV
+          echo "Generating build environment"
+          go run ./cmd/cicd-utilities git suggest-build-env | tee -a $GITHUB_ENV
 
       - name: Build binaries
         run: |
           echo "Building binaries without dependencies"
-          echo "BUILD_BRANCH=${{ steps.build-env.outputs.BUILD_BRANCH }}"
-          echo "BUILD_CONTEXT=${{ steps.build-env.outputs.BUILD_CONTEXT }}"
-          echo "BUILD_VERSION=${{ steps.build-env.outputs.BUILD_VERSION }}"
-          echo "BUILD_TIME=${{ steps.build-env.outputs.BUILD_TIME }}"
+          echo "BUILD_BRANCH=${BUILD_BRANCH}"
+          echo "BUILD_CONTEXT=${BUILD_CONTEXT}}"
+          echo "BUILD_VERSION=${BUILD_VERSION}"
+          echo "BUILD_TIME=${BUILD_TIME}"
           rm -rf dist
           mkdir -p dist
           GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/cicd-utilities-amd64 ./cmd/cicd-utilities
@@ -69,12 +68,11 @@ jobs:
       - name: Create draft release
         run: |
           echo "Creating draft release"
-          go run ./cmd/cicd-utilities github-release \
-            --name "Release ${BUILD_VERSION}" \
+          go run ./cmd/cicd-utilities github release create\
+            --name "${BUILD_VERSION}" \
             --draft \
             --body "#TODO create body" \
             --verbse \
-            dist/cicd-utilities-*.zip           
+            dist/*           
         env:
-          GITHUB_REPO: ${{ github.repository }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
