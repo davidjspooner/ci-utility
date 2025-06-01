@@ -60,7 +60,7 @@ jobs:
       - name: Checksum
         run: |
           echo "Calculating checksum"
-          go run ./cmd/ci-utility checksum \
+          go run ./cmd/ci-utility archive checksum \
             --combined-file dist/checksums.txt \
             --algorithm sha256 \
             dist/cicd-utility-*.zip 
