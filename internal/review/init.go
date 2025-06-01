@@ -20,7 +20,7 @@ type ReviewOptions struct {
 func Commands() []cmd.Command {
 	reviewCommand := cmd.NewCommand(
 		"review",
-		"review proejct and generare a review.yaml file",
+		"Review proejct and optionally generate a review.yaml file",
 		func(ctx context.Context, options *ReviewOptions, args []string) error {
 			meta := ProjectMeta{
 				RootPath: options.RootDir,

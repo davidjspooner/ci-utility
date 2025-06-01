@@ -9,13 +9,13 @@ func Commands() []cmd.Command {
 		"matrix",
 		"Tools for an environment matrix ",
 	)
-	execCommand := cmd.NewCommand(
-		"exec|run",
-		"Execute a command for each combintation of an environment matrix ",
+	runCommand := cmd.NewCommand(
+		"run",
+		"Run a command for each combintation of an environment matrix ",
 		doMatrixExecute,
 		&MatrixRunOptions{},
 	)
-	group.SubCommands().Add(execCommand)
+	group.SubCommands().Add(runCommand)
 	return []cmd.Command{
 		group,
 	}

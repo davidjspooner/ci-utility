@@ -38,7 +38,7 @@ func executeOneCommand(ctx context.Context, option *MatrixRunOptions, args []str
 	}
 
 	//run the command , copying stdout and stderr
-	slog.InfoContext(ctx, "Executing command", "command", strings.Join(quotedCmdArgs, " "))
+	slog.InfoContext(ctx, "Running", "command", strings.Join(quotedCmdArgs, " "))
 	cmd := exec.CommandContext(ctx, cmdArgs[0], cmdArgs[1:]...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
