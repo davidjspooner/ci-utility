@@ -52,7 +52,6 @@ jobs:
             -- \
             go build -ldflags="-s -w" -o 'dist/${CMD}-${GOOS}-${GOARCH}' './cmd/${CMD}'
 
-                  - name: List distribution files
       - name: Check Files
         run: |
           echo "Listing all files"
