@@ -20,6 +20,7 @@ func loadValues(path string) (*Values, error) {
 	}
 	defer data.Close()
 	var values Values
+	// Decode YAML into the Values struct.
 	err = yaml.NewDecoder(data).Decode(&values.Values)
 	if err != nil {
 		return nil, err
@@ -39,9 +40,11 @@ func (v *Values) Get(key string) (string, error) {
 func (v *Values) Functions() map[string]any {
 	templateFunctions := map[string]any{
 		"env": func(key string) string {
+			// Lookup environment variable by key.
 			return os.Getenv(key)
 		},
 		"file": func(path string) (string, error) {
+			// Read file content as string.
 			data, err := os.ReadFile(path)
 			if err != nil {
 				return "", fmt.Errorf("failed to read file %s: %w", path, err)
@@ -49,6 +52,7 @@ func (v *Values) Functions() map[string]any {
 			return string(data), nil
 		},
 		"value": func(path string) (string, error) {
+			// Read file content as string (same as file).
 			data, err := os.ReadFile(path)
 			if err != nil {
 				return "", fmt.Errorf("failed to read file %s: %w", path, err)

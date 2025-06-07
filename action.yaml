@@ -1,0 +1,19 @@
+name: 'Install'
+description: 'Fetch the the ci-utility from github and install it in /usr/local/bin'
+inputs: 
+  version:
+    description: 'The version of the ci-utility to install. Defaults to "latest".'
+    required: false
+    default: 'latest'
+runs:
+  using: "composite"
+  steps:
+    #- name: Make fetch_release.sh executable
+    #  run: chmod +x ./fetch_release.sh
+    #  shell: bash
+
+    - name: Fetch and install release (${{ inputs.version }})
+      run: |
+        chmod +x ./fetch_and_install_release.sh
+        ./fetch_and_install_release.sh ${{ inputs.version }}
+      shell: bash

@@ -1,5 +1,6 @@
 package github
 
+// CreateReleaseRequest represents the payload to create a new GitHub release.
 type CreateReleaseRequest struct {
 	TagName         string `json:"tag_name"`
 	TargetCommitish string `json:"target_commitish,omitempty"`
@@ -9,12 +10,14 @@ type CreateReleaseRequest struct {
 	Prerelease      bool   `json:"prerelease"`
 }
 
+// ReleaseResponse represents the response from GitHub after creating a release.
 type ReleaseResponse struct {
 	ID   int64  `json:"id"`
 	Name string `json:"name"`
 	URL  string `json:"html_url"`
 }
 
+// AssetResponse represents a single asset attached to a GitHub release.
 type AssetResponse struct {
 	ID   int64  `json:"id"`
 	Name string `json:"name"`

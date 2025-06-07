@@ -60,6 +60,7 @@ func (m *MarkdownExpander) Expand(content []byte, target io.Writer) error {
 		m.lineNumber++
 		trimmed := strings.TrimSpace(line)
 
+		// Find all marker matches in the current line.
 		matches := m.markerRegex.FindAllStringSubmatch(trimmed, -1)
 		if !m.InFence() && len(matches) > 0 {
 			var beginKey, closeKey string
@@ -73,6 +74,7 @@ func (m *MarkdownExpander) Expand(content []byte, target io.Writer) error {
 				}
 			}
 
+			// Handle single-line replacement.
 			if beginKey != "" && closeKey == beginKey {
 				replacement, err := m.Lookup(beginKey)
 				if err != nil {
@@ -83,10 +85,12 @@ func (m *MarkdownExpander) Expand(content []byte, target io.Writer) error {
 				fmt.Fprintf(target, "<!--CLOSE--%s-->", closeKey)
 				continue
 			} else if beginKey != "" {
+				// Start a multi-line replacement block.
 				m.replaceKey = beginKey
 				fmt.Fprintln(target, line)
 				continue
 			} else if closeKey != "" && m.replaceKey == closeKey {
+				// End a multi-line replacement block.
 				replacement, err := m.Lookup(closeKey)
 				if err != nil {
 					return fmt.Errorf("lookup failed for %s: %w", closeKey, err)
@@ -98,13 +102,16 @@ func (m *MarkdownExpander) Expand(content []byte, target io.Writer) error {
 			}
 		}
 
+		// If inside a replacement block, skip lines until the CLOSE marker.
 		if m.InReplacement() {
 			continue
 		}
 
+		// Process the line for code fences and output.
 		m.processLine(line, target)
 	}
 
+	// Check for scanner errors.
 	if err := scanner.Err(); err != nil {
 		return fmt.Errorf("scan error: %w", err)
 	}
@@ -123,12 +130,14 @@ func (m *MarkdownExpander) InReplacement() bool {
 func (m *MarkdownExpander) processLine(line string, target io.Writer) {
 	trimmed := strings.TrimSpace(line)
 
+	// Check for code fence start/end.
 	if m.fenceRegex.MatchString(trimmed) {
 		m.handleFence(trimmed)
 		fmt.Fprintln(target, line)
 		return
 	}
 
+	// Output the line as-is.
 	fmt.Fprintln(target, line)
 }
 
@@ -139,9 +148,11 @@ func (m *MarkdownExpander) handleFence(trimmed string) {
 	count := m.countRunes(trimmed, char)
 
 	if !m.InFence() {
+		// Entering a new code fence.
 		m.fenceChar = char
 		m.fenceLength = count
 	} else if char == m.fenceChar && count >= m.fenceLength {
+		// Exiting the current code fence.
 		m.fenceChar = 0
 		m.fenceLength = 0
 	}

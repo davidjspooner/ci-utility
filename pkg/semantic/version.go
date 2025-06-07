@@ -91,14 +91,16 @@ func (v Version) IsNotEmpty() bool {
 var versionFmt = regexp.MustCompile(`(.*)(\d+)\.(\d+)\.(\d+)(.*)`)
 
 // ExtractVersionFromTag extracts a semantic version from a tag string.
-// Returns the prefix, suffix, Version, and error if any.
 func ExtractVersionFromTag(tag string) (string, string, Version, error) {
+	// Match the tag against the version format.
 	matches := versionFmt.FindStringSubmatch(tag)
 	if len(matches) != 6 {
 		return "", "", Version{}, fmt.Errorf("invalid version tag format: %s", tag)
 	}
 	v := Version{}
 	var err error
+
+	// Convert the major, minor, and patch parts to integers.
 	v.Major, err = strconv.Atoi(matches[2])
 	if err != nil {
 		return "", "", v, fmt.Errorf("error converting major version: %v", err)
@@ -111,5 +113,6 @@ func ExtractVersionFromTag(tag string) (string, string, Version, error) {
 	if err != nil {
 		return "", "", v, fmt.Errorf("error converting patch version: %v", err)
 	}
+	//return the prefix, suffix, version struct, and nil error
 	return matches[1], matches[5], v, nil
 }

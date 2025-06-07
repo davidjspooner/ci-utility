@@ -45,6 +45,7 @@ func applyNewTag(ctx context.Context, newTag string, option *BumpGitTagOptions) 
 		return fmt.Errorf("failed to push tag: %v", err)
 	}
 
+	// Log tag creation and push.
 	slog.InfoContext(ctx, "Tag created and pushed", "tag", newTag)
 	return nil
 }
@@ -64,6 +65,7 @@ func executeBumpGitTag(ctx context.Context, option *BumpGitTagOptions, args []st
 		return fmt.Errorf("failed to get the latest tag: %v", err)
 	}
 
+	// Log the current tag and version.
 	slog.InfoContext(ctx, "Current", "tag", latestTag, "version", currentVersion.String())
 
 	// Get commit messages since the latest tag
@@ -88,6 +90,7 @@ func executeBumpGitTag(ctx context.Context, option *BumpGitTagOptions, args []st
 		return err
 	}
 
+	// Log the increment reason.
 	slog.DebugContext(ctx, "Increment", "reason", reason)
 
 	// Apply the new tag
@@ -101,6 +104,7 @@ func getCommitsSinceTag(latestTag string) ([]string, []string, error) {
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to get commit messages: %v", err)
 	}
+	// Split commit messages into lines.
 	commits := splitLines(commitMessages)
 	for _, commit := range commits {
 		commit = strings.TrimSpace(commit)
@@ -120,6 +124,7 @@ func getLatestTagAndVersion(ctx context.Context, branch string) (string, semanti
 	var bestVersion semantic.Version
 	var bestTag string
 
+	// Log the latest commits found.
 	slog.DebugContext(ctx, "Latest commits found", "commits", commits)
 	commitList := splitLines(commits)
 	for _, commit := range commitList {
@@ -131,11 +136,13 @@ func getLatestTagAndVersion(ctx context.Context, branch string) (string, semanti
 		if err != nil {
 			continue
 		}
+		// Log ancestor check.
 		slog.DebugContext(ctx, "Checked commit is ancestor", "commit", commit, "branch", branch, "checkCmd", checkCmd)
 		tagsForCommit, err := Run("tag", "--contains", commit)
 		if err != nil {
 			continue
 		}
+		// Log tags for commit.
 		slog.DebugContext(ctx, "Tags for commit found", "commit", commit, "tags", tagsForCommit)
 
 		for _, tag := range splitLines(tagsForCommit) {

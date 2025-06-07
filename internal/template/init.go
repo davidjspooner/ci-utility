@@ -14,18 +14,21 @@ import (
 // Commands returns the list of template-related CLI commands,
 // including the 'template expand' subcommand.
 func Commands() []cmd.Command {
+	// Create the root template command.
 	templateCommand := cmd.NewCommand(
 		"template",
 		"Template commands",
 		nil,
 		&cmd.NoopOptions{},
 	)
+	// Define the expand subcommand for expanding templates.
 	expand := cmd.NewCommand(
 		"expand",
 		"Expand a template file",
 		expandTemplate,
 		&expandOptions{},
 	)
+	// Add the expand subcommand to the root template command.
 	templateCommand.SubCommands().MustAdd(expand)
 	return []cmd.Command{templateCommand}
 }
@@ -61,12 +64,14 @@ func expandTemplate(ctx context.Context, options *expandOptions, args []string) 
 			return fmt.Errorf("multiple files specified, but target is not a directory")
 		}
 		if isTargetDir {
+			// Ensure the target directory exists.
 			err := os.MkdirAll(target, 0755)
 			if err != nil {
 				return fmt.Errorf("failed to create target directory %s: %w", target, err)
 			}
 		}
 	}
+	// Load values from the provided YAML file, if any.
 	values, err := loadValues(options.ValuesYaml)
 	if err != nil {
 		return fmt.Errorf("failed to load values from %s: %w", options.ValuesYaml, err)
@@ -82,16 +87,19 @@ func expandTemplate(ctx context.Context, options *expandOptions, args []string) 
 			targetName = options.Target
 		}
 
+		// Check if the source file exists.
 		_, err := os.Stat(arg)
 		if err != nil {
 			return fmt.Errorf("failed to stat file %s: %w", arg, err)
 		}
 
+		// If target is a directory, adjust the target file name.
 		if isTargetDir {
 			base := path.Base(arg)
 			base = strings.Replace(base, ".tmpl", "", -1)
 			targetName = targetName + base
 		}
+		// Expand the template file.
 		err = expandTemplateFile(arg, targetName, options.Type, values)
 		if err != nil {
 			return fmt.Errorf("failed to expand template %s: %w", arg, err)
@@ -109,18 +117,19 @@ func expandTemplateFile(source, target, templateType string, values *Values) err
 	}
 	defer f.Close()
 
-	//create a temporty file to write the expanded template to
+	// Create a temporary file to write the expanded template to.
 	tempFile, err := os.CreateTemp("", "expanded_template_")
 	if err != nil {
 		return fmt.Errorf("failed to create temporary file for expanded template: %w", err)
 	}
+	// Expand the template stream into the temporary file.
 	err = expandTemplateStream(f, tempFile, templateType, values)
 	if err != nil {
 		return fmt.Errorf("failed to expand template stream %s: %w", source, err)
 	}
-	//close the temp file
+	// Close the temp file before renaming.
 	defer tempFile.Close()
-	//move the temp file to the target file
+	// Move the temp file to the target file.
 	err = os.Rename(tempFile.Name(), target)
 	return err
 }
@@ -136,16 +145,19 @@ func expandTemplateStream(source io.Reader, target io.Writer, templateType strin
 
 	switch templateType {
 	case "go/text":
+		// Expand using Go's text/template engine.
 		err := expandGoTextTemplate(string(content), target, values)
 		if err != nil {
 			return err
 		}
 	case "go/html":
+		// Expand using Go's html/template engine.
 		err := expandGoHTMLTemplate(string(content), target, values)
 		if err != nil {
 			return err
 		}
 	case "markdown":
+		// Expand using the MarkdownExpander, which looks up environment variables.
 		expander := MarkdownExpander{
 			Lookup: func(key string) (string, error) {
 				v := os.Getenv(key)

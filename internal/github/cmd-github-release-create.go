@@ -9,7 +9,9 @@ import (
 	"strings"
 )
 
-type GithubReleaseCreateOptions struct {
+// ReleaseCreateOptions holds the options for creating a GitHub release.
+// It includes fields for the tag name, release name, body, and flags for draft and prerelease.
+type ReleaseCreateOptions struct {
 	TagName    string `flag:"--tag,Tag name for the release"`
 	Name       string `flag:"--name|--title,Human name of the release (defaults to the tag name)"`
 	Body       string `flag:"--body,Description of the release"`
@@ -17,8 +19,9 @@ type GithubReleaseCreateOptions struct {
 	Prerelease bool   `flag:"--prerelease,Mark the release as a prerelease"`
 }
 
-func executeGithubReleaseCreate(ctx context.Context, option *GithubReleaseCreateOptions, args []string) error {
-
+// executeGithubReleaseCreate creates a GitHub release and uploads assets.
+func executeGithubReleaseCreate(ctx context.Context, option *ReleaseCreateOptions, args []string) error {
+	// Validate the required options.
 	files, err := globFiles(args)
 	if err != nil {
 		return err
@@ -27,6 +30,7 @@ func executeGithubReleaseCreate(ctx context.Context, option *GithubReleaseCreate
 		return fmt.Errorf("no files found matching the pattern")
 	}
 
+	// get the GitHub token and repository from environment variables.
 	token := os.Getenv("GITHUB_TOKEN")
 	repo := os.Getenv("GITHUB_REPOSITORY") // e.g., "owner/repo"
 
@@ -34,6 +38,7 @@ func executeGithubReleaseCreate(ctx context.Context, option *GithubReleaseCreate
 		return fmt.Errorf("GITHUB_TOKEN and GITHUB_REPOSITORY environment variables are required")
 	}
 
+	// Create a GitHub API client with the provided token and repository information.
 	client := Client{
 		HTTPClient: http.DefaultClient,
 		BaseURL:    "https://api.github.com",
@@ -42,6 +47,7 @@ func executeGithubReleaseCreate(ctx context.Context, option *GithubReleaseCreate
 		Repo:       strings.SplitN(repo, "/", 2)[1],
 	}
 
+	// prepare the release request payload.
 	releaseReq := CreateReleaseRequest{
 		TagName:    option.TagName,
 		Name:       option.Name,
@@ -50,6 +56,7 @@ func executeGithubReleaseCreate(ctx context.Context, option *GithubReleaseCreate
 		Prerelease: option.Prerelease,
 	}
 
+	// Create the release using the GitHub API.
 	var release ReleaseResponse
 	err = client.PostJSON(ctx, "/repos/{owner}/{repo}/releases", releaseReq, &release)
 	if err != nil {
@@ -59,8 +66,8 @@ func executeGithubReleaseCreate(ctx context.Context, option *GithubReleaseCreate
 
 	slog.InfoContext(ctx, "Created release", "id", release.ID, "tag", option.TagName, "name", release.Name, "url", release.URL)
 
+	// Upload each file as an asset to the created release.
 	for _, path := range files {
-
 		var asset AssetResponse
 		err = client.UploadBinaryFile(ctx, release.ID, path, &asset)
 		if err != nil {

@@ -37,26 +37,13 @@ jobs:
 
       - name: Build binaries
         run: |
-          echo "Building binaries without dependencies"
-          echo "BUILD_BRANCH=${BUILD_BRANCH}"
-          echo "BUILD_CONTEXT=${BUILD_CONTEXT}"
-          echo "BUILD_VERSION=${BUILD_VERSION}"
-          echo "BUILD_TIME=${BUILD_TIME}"
-          rm -rf dist
-          mkdir -p dist
-          go run ./cmd/ci-utility matrix run \
-            -d GOOS=linux \
-            -d GOARCH=amd64,arm64 \
-            -d CGO_ENABLED=0 \
-            -d CMD=ci-utility \
-            -- \
-            go build -ldflags="-s -w" -o 'dist/${CMD}-${GOOS}-${GOARCH}' './cmd/${CMD}'
+          echo "Building binaries"
+          ./build.sh 
 
       - name: Check Files
         run: |
           echo "Listing all files"
           ls -lR 
-
 
       - name: Compress binaries
         run: |
@@ -65,7 +52,7 @@ jobs:
           go run ./cmd/ci-utility archive compress \
             --remove-original \
             --format zip \
-            dist/ci-utility-*
+            dist/ci-utility-*64
 
       - name: Checksum
         run: |
@@ -73,7 +60,7 @@ jobs:
           go run ./cmd/ci-utility archive checksum \
             --combined-file dist/checksums.txt \
             --algorithm sha256 \
-            dist/ci-utility-*.zip 
+            dist/ci-utility-*64.zip
 
       - name: List distribution files
         run: |
