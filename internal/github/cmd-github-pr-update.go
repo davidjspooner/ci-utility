@@ -46,10 +46,12 @@ func executeUpdateGithubPRMeta(ctx context.Context, option *PRUpdateOptions, arg
 	commitMessages := getCommitMessages(option.PRNumber, token, repo)
 
 	// Determine the semantic version bump from commit messages.
-	bump, err := semantic.Bumps.GetVersionBump(commitMessages)
+	bump, reason, err := semantic.Bumps.GetVersionBump(commitMessages)
 	if err != nil {
 		return fmt.Errorf("error determining bump : %v", err)
 	}
+
+	slog.Debug("Found commit which needs version increament", "level", bump, "message", reason)
 
 	// Get the current PR title.
 	prTitle, err := getPullRequestTitle(ctx, option.PRNumber, token, repo)

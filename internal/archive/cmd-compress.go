@@ -107,7 +107,7 @@ func compressCommand(ctx context.Context, options *CompressOptions, args []strin
 
 // compressToZip compresses the given path into a .zip archive.
 // It walks the directory tree and adds all files and directories to the archive.
-func compressToZip(ctx context.Context, options *CompressOptions, paths []string) error {
+func compressToZip(_ context.Context, options *CompressOptions, paths []string) error {
 	outFile, err := os.Create(options.Target)
 	if err != nil {
 		return fmt.Errorf("failed to create zip file: %v", err)
@@ -166,7 +166,7 @@ func compressToZip(ctx context.Context, options *CompressOptions, paths []string
 
 // compressToTarGz compresses the given path into a .tar.gz archive.
 // It walks the directory tree and adds all files and directories to the archive.
-func compressToTarGz(ctx context.Context, options *CompressOptions, paths []string) error {
+func compressToTarGz(_ context.Context, options *CompressOptions, paths []string) error {
 	outFile, err := os.Create(options.Target)
 	if err != nil {
 		return fmt.Errorf("failed to create tar.gz file: %v", err)

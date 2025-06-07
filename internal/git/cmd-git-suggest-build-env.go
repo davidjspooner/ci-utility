@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/davidjspooner/ci-utility/pkg/semantic"
 	"github.com/davidjspooner/go-text-cli/pkg/cmd"
 )
 
@@ -47,43 +46,27 @@ func executeSuggestBuildEnv(ctx context.Context, options *SuggestBuildEnvOptions
 	// Log the current tag and version.
 	slog.DebugContext(ctx, "Current", "tag", latestTag, "version", currentVersion.String())
 
-	// Get commit messages since the latest tag.
-	validCommitMessages, commits, err := getCommitsSinceTag(latestTag)
-	if err != nil {
-		return err
-	}
-
-	// Prepare newTag variable.
-	newTag := ""
-	if len(validCommitMessages) > 0 {
-
-		// Determine the version reason.
-		reason, err := semantic.Bumps.GetVersionBump(commits)
-		if err != nil {
-			return fmt.Errorf("failed to determine version increment: %v", err)
-		}
-
-		// Generate the new tag.
-		newTag, err = generateNewTag(options.VersionPrefix, options.VersionSuffix, currentVersion, reason)
-		if err != nil {
-			return err
-		}
-	}
-
 	prefix := options.CommandPrefix
 	if prefix != "" && !strings.HasSuffix(prefix, " ") {
 		prefix += " "
 	}
 
-	// Print environment variables for the build.
-	fmt.Printf("%sNEW_TAG=%q\n", prefix, newTag)
-	fmt.Printf("%sBUILD_BRANCH=%q\n", prefix, currentBranch)
-	fmt.Printf("%sBUILD_VERSION=%q\n", prefix, suggestBuildName())
-	fmt.Printf("%sBUILD_FROM=%q\n", prefix, getGitUrl())
-	fmt.Printf("%sBUILD_BY=%q\n", prefix, getBuildContext())
 	now := time.Now().UTC()
-	fmt.Printf("%sBUILD_TIME=%q\n", prefix, now.Format(time.RFC1123))
+	nowStr := now.Format(time.RFC1123)
+	// Print environment variables for the build.
+	fmt.Printf("%sBUILD_BRANCH=%s\n", prefix, quoteIfNeeded(currentBranch))
+	fmt.Printf("%sBUILD_VERSION=%s\n", prefix, quoteIfNeeded(suggestBuildName()))
+	fmt.Printf("%sBUILD_FROM=%s\n", prefix, quoteIfNeeded(getGitUrl()))
+	fmt.Printf("%sBUILD_BY=%s\n", prefix, quoteIfNeeded(getBuildContext()))
+	fmt.Printf("%sBUILD_TIME=%s\n", prefix, quoteIfNeeded(nowStr))
 	return nil
+}
+
+func quoteIfNeeded(s string) string {
+	if strings.ContainsAny(s, " \t\n") {
+		return fmt.Sprintf("%q", s)
+	}
+	return s
 }
 
 // suggestBuildName returns a string representing the build version or identifier.
@@ -146,6 +129,8 @@ func getGitUrl() string {
 		out = strings.ReplaceAll(out, ":", "/")
 		out = strings.ReplaceAll(out, "git@", "https://")
 	}
+
+	out = strings.TrimSuffix(out, ".git")
 
 	return out
 }

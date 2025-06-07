@@ -79,19 +79,19 @@ func executeBumpGitTag(ctx context.Context, option *BumpGitTagOptions, args []st
 	}
 
 	// Determine the version reason
-	reason, err := semantic.Bumps.GetVersionBump(commits)
+	bump, reason, err := semantic.Bumps.GetVersionBump(commits)
 	if err != nil {
 		return fmt.Errorf("failed to determine version increment: %v", err)
 	}
 
+	// Log the bump and reason.
+	slog.DebugContext(ctx, "Version increment needed", "commit", reason, "bump", bump)
+
 	// Generate the new tag
-	newTag, err := generateNewTag(option.Prefix, option.Suffix, currentVersion, reason)
+	newTag, err := generateNewTag(option.Prefix, option.Suffix, currentVersion, bump)
 	if err != nil {
 		return err
 	}
-
-	// Log the increment reason.
-	slog.DebugContext(ctx, "Increment", "reason", reason)
 
 	// Apply the new tag
 	return applyNewTag(ctx, newTag, option)

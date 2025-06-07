@@ -1,6 +1,8 @@
 package semantic
 
-import "strings"
+import (
+	"strings"
+)
 
 // Bump represents a semantic version bump level and its associated commit message hints.
 type Bump struct {
@@ -20,13 +22,13 @@ var Bumps = BumpArray{
 
 // GetVersionBump determines the version bump level based on commit messages.
 // It returns the highest-priority bump found, or "patch" if none match.
-func (bumps BumpArray) GetVersionBump(commits []string) (string, error) {
-	found := map[string]bool{}
+func (bumps BumpArray) GetVersionBump(commits []string) (string, string, error) {
+	found := map[string]string{}
 	for _, msg := range commits {
 		for _, bump := range bumps {
 			for _, hint := range bump.Hints {
 				if strings.Contains(msg, hint) {
-					found[bump.Level] = true
+					found[bump.Level] = msg
 				}
 			}
 		}
@@ -34,11 +36,11 @@ func (bumps BumpArray) GetVersionBump(commits []string) (string, error) {
 
 	// Check for bump levels in priority order.
 	for _, bump := range bumps {
-		if found[bump.Level] {
-			return bump.Level, nil
+		if found[bump.Level] != "" {
+			return bump.Level, found[bump.Level], nil
 		}
 	}
 
 	// Default to patch if no hints are found.
-	return "patch", nil
+	return "patch", "", nil
 }
