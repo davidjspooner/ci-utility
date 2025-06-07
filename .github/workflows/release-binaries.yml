@@ -4,8 +4,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-release:
+  update-tag-build-and-release:
     runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]' && github.ref == 'refs/heads/main'
+    permissions:
+          contents: write  # Required for git push
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -23,12 +26,14 @@ jobs:
           git config --global url."https://x-access-token:${{ secrets.RO_DAVIDJSPOONER }}@github.com/davidjspooner/".insteadOf "https://github.com/davidjspooner/"
           git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}".insteadOf "https://github.com/${GITHUB_REPOSITORY}"
           echo "GOPRIVATE=github.com/davidjspooner" >> $GITHUB_ENV
-
-      - name: Update Go modules
+          
+      - name: Increment tag if needed (main branch only)
         run: |
-          echo "Updating Go modules"
-          go get -u ./...
-          go mod tidy
+          echo "Incrementing tag if needed"
+          go run ./cmd/ci-utility git update-tag --prefix=v --verbose
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Get build environment
         id: build-env
         run: |
@@ -51,6 +56,7 @@ jobs:
           set | grep BUILD
           go run ./cmd/ci-utility archive compress \
             --remove-original \
+            --rename ci-utility \
             --format zip \
             dist/ci-utility-*64
 
@@ -79,7 +85,7 @@ jobs:
           go run ./cmd/ci-utility github release create\
             --name "${BUILD_VERSION}" \
             --draft \
-            --body "#TODO create body" \
+            --body "#TODO create release notes" \
             --verbose \
             dist/*           
         env:
