@@ -32,7 +32,8 @@ go run ./cmd/ci-utility matrix run \
     go build -ldflags="-s -w \
         -X 'github.com/davidjspooner/go-text-cli/pkg/cmd.BUILD_VERSION=${BUILD_VERSION}' \
         -X 'github.com/davidjspooner/go-text-cli/pkg/cmd.BUILD_BY=${BUILD_BY}' \
-        -X 'github.com/davidjspooner/go-text-cli/pkg/cmd.BUILD_TIME=${BUILD_TIME}' " \
+        -X 'github.com/davidjspooner/go-text-cli/pkg/cmd.BUILD_TIME=${BUILD_TIME}' \
+        -X 'github.com/davidjspooner/go-text-cli/pkg/cmd.BUILD_FROM=${BUILD_FROM}' " \
         -o 'dist/${CMD}-${GOOS}-${GOARCH}' './cmd/${CMD}'
 
 OS=$(uname | tr '[:upper:]' '[:lower:]')

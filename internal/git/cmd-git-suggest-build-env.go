@@ -79,6 +79,7 @@ func executeSuggestBuildEnv(ctx context.Context, options *SuggestBuildEnvOptions
 	fmt.Printf("%sNEW_TAG=%q\n", prefix, newTag)
 	fmt.Printf("%sBUILD_BRANCH=%q\n", prefix, currentBranch)
 	fmt.Printf("%sBUILD_VERSION=%q\n", prefix, suggestBuildName())
+	fmt.Printf("%sBUILD_FROM=%q\n", prefix, getGitUrl())
 	fmt.Printf("%sBUILD_BY=%q\n", prefix, getBuildContext())
 	now := time.Now().UTC()
 	fmt.Printf("%sBUILD_TIME=%q\n", prefix, now.Format(time.RFC1123))
@@ -117,7 +118,7 @@ func suggestBuildName() string {
 func getBuildContext() string {
 	// Check for github actions.
 	if os.Getenv("GITHUB_ACTIONS") == "true" {
-		return os.Getenv("GITHUB_RUN_ID")
+		return os.ExpandEnv("${GITHUB_JOB} (${GITHUB_RUN_ID}@github)")
 	}
 
 	// Fallback to user@hostname.
@@ -130,4 +131,21 @@ func getBuildContext() string {
 		hostname = "unknown"
 	}
 	return user + "@" + hostname
+}
+
+func getGitUrl() string {
+	// Get the remote URL for the origin.
+	out, err := Run("config", "--get", "remote.origin.url")
+	if err != nil {
+		return "UNKNOWN"
+	}
+	out = strings.TrimSpace(out)
+
+	// If the URL is an SSH URL, convert it to HTTPS.
+	if strings.HasPrefix(out, "git@") {
+		out = strings.ReplaceAll(out, ":", "/")
+		out = strings.ReplaceAll(out, "git@", "https://")
+	}
+
+	return out
 }
