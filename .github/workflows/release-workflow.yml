@@ -1,10 +1,10 @@
-name: Release workflow for ci-utility
+name: Release
 
 on:
   workflow_dispatch:
 
 jobs:
-  update-tag-build-and-release:
+  release-workflow:
     runs-on: ubuntu-latest
     if: github.actor != 'github-actions[bot]' && github.ref == 'refs/heads/main'
     permissions:
@@ -83,7 +83,7 @@ jobs:
         run: |
           echo "Creating draft release"
           go run ./cmd/ci-utility github release create\
-            --name "${BUILD_VERSION}" \
+            --tag ${BUILD_VERSION} \
             --draft \
             --body "#TODO create release notes" \
             --verbose \

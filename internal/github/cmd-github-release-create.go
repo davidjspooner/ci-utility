@@ -47,6 +47,13 @@ func executeGithubReleaseCreate(ctx context.Context, option *ReleaseCreateOption
 		Repo:       strings.SplitN(repo, "/", 2)[1],
 	}
 
+	if option.TagName == "" {
+		return fmt.Errorf("tag name (--tag) is required")
+	}
+	if option.Name == "" {
+		option.Name = option.TagName // Default to tag name if not provided.
+	}
+
 	// prepare the release request payload.
 	releaseReq := CreateReleaseRequest{
 		TagName:    option.TagName,
