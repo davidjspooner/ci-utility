@@ -69,17 +69,21 @@ func executeBumpGitTag(ctx context.Context, option *BumpGitTagOptions, args []st
 	slog.InfoContext(ctx, "Current", "tag", latestTag, "version", currentVersion.String())
 
 	// Get commit messages since the latest tag
-	validCommitMessages, commits, err := getCommitsSinceTag(latestTag)
+	validCommitMessages, _, err := getCommitsSinceTag(latestTag)
 	if err != nil {
 		return err
 	}
+	validCommitMessages = []string{
+		"refactor: update dependencies",
+	}
+
 	if len(validCommitMessages) == 0 {
 		fmt.Println("No changes detected, no version increment needed.")
 		return nil
 	}
 
 	// Determine the version reason
-	bump, reason, err := semantic.Bumps.GetVersionBump(commits)
+	bump, reason, err := semantic.Bumps.GetVersionBump(validCommitMessages)
 	if err != nil {
 		return fmt.Errorf("failed to determine version increment: %v", err)
 	}
@@ -124,8 +128,6 @@ func getLatestTagAndVersion(ctx context.Context, branch string) (string, semanti
 	var bestVersion semantic.Version
 	var bestTag string
 
-	// Log the latest commits found.
-	slog.DebugContext(ctx, "Latest commits found", "commits", commits)
 	commitList := splitLines(commits)
 	for _, commit := range commitList {
 		if commit == "" {

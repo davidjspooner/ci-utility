@@ -1,6 +1,6 @@
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
-github.com/davidjspooner/go-text-cli v0.0.0-20250607073954-cea6263ee872 h1:H+MHf8Z+8t7k8XZeaBPTNGgUiLW/UnxJoe/TJI6m2sk=
-github.com/davidjspooner/go-text-cli v0.0.0-20250607073954-cea6263ee872/go.mod h1:LuXSCWfIap/2bqTBBQckgSIYyTnyohp3jFHW+UrQSZU=
+github.com/davidjspooner/go-text-cli v0.0.0-20250607083056-83739f1eef74 h1:68nBSS8iOg0HCvS53cVf0XRWSx6LJ3hD2VAGv0JWO5U=
+github.com/davidjspooner/go-text-cli v0.0.0-20250607083056-83739f1eef74/go.mod h1:LuXSCWfIap/2bqTBBQckgSIYyTnyohp3jFHW+UrQSZU=
 github.com/kr/pretty v0.2.1/go.mod h1:ipq/a2n7PKx3OHsz4KJII5eveXtPO4qwEXGdVfWzfnI=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
 github.com/kr/pretty v0.3.1/go.mod h1:hoEshYVHaxMs3cyo3Yncou5ZscifuDolrwPKZanG3xk=

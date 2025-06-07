@@ -33,7 +33,7 @@ func main() {
 			// Show help if no subcommand is provided.
 			err = cmd.ShowHelpForMissingSubcommand(ctx)
 			return err
-		}, &GlobalOptions{LogOptions: cmd.LogOptions{Level: "info"}})
+		}, &GlobalOptions{})
 
 	cmd.RootCommand = root
 
