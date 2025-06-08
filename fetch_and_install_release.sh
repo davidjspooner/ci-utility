@@ -18,6 +18,10 @@ fi
 
 VERSION="${1:-}"
 
+# if version =="" or version == "latest" then fetch the latest version
+if [[ "$VERSION" == "latest" ]]; then
+    VERSION=""
+fi
 if [[ -z "$VERSION" ]]; then
     echo "No version specified. Fetching latest..."
     VERSION=$(curl -fsSL "${CURL_AUTH[@]}" "https://api.github.com/repos/davidjspooner/ci-utility/releases/latest" | jq -r .tag_name)
@@ -25,7 +29,6 @@ if [[ -z "$VERSION" ]]; then
         echo "Failed to fetch latest version from GitHub API"
         exit 1
     fi
-    VERSION="${VERSION#v}"
     echo "Latest version is [$VERSION]"
 fi
 
