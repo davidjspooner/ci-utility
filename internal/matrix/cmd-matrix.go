@@ -3,15 +3,22 @@ package matrix
 import (
 	"context"
 	"fmt"
+	"io"
 	"log/slog"
+	"math"
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/davidjspooner/go-text-cli/pkg/ansi/layout"
 )
 
 // RunOptions holds CLI flags for running a matrix command.
 type RunOptions struct {
-	Dimension []string `flag:"--dimension|-d,A dimension name and values to run the command for. Eg -d GOARCH=amd64,arm64 -d GOOS=linux"`
+	Dimension  []string `flag:"--dimension|-d,A dimension name and values to run the command for. Eg -d GOARCH=amd64,arm64 -d GOOS=linux"`
+	Shell      string   `flag:"--shell|-s,The shell to use for running commands. Defaults to bash if not set."`
+	AllowColor bool     `flag:"--allow-color,-c,Allow color output in the command execution."`
+	WrapWidth  int      `flag:"--wrap-width,-w,The maximum width for wrapping output. Defaults to maxint if not set."`
 }
 
 // dimension represents a single matrix dimension with a name and possible values.
@@ -21,12 +28,7 @@ type dimension struct {
 }
 
 // executeOneCommand runs a single command with the current environment variables set for the matrix cell.
-func executeOneCommand(ctx context.Context, _ *RunOptions, args []string) error {
-	if len(args) == 0 {
-		slog.WarnContext(ctx, "No command provided, skipping execution")
-		return nil
-	}
-
+func executeOneCommand(ctx context.Context, options *RunOptions, stdin []byte, args []string) error {
 	// Prepare command arguments, expanding environment variables.
 	cmdArgs := make([]string, len(args))
 	quotedCmdArgs := make([]string, len(cmdArgs))
@@ -40,12 +42,27 @@ func executeOneCommand(ctx context.Context, _ *RunOptions, args []string) error 
 			quotedCmdArgs[i] = arg
 		}
 	}
+	stdinStr := os.ExpandEnv(string(stdin))
+	stdinStream := io.NopCloser(strings.NewReader(stdinStr))
+
+	if options.WrapWidth == 0 {
+		options.WrapWidth = math.MaxInt // Default to maxint if not set.
+	}
+	wrapSpec := &layout.WrapSpec{
+		MaxWidth: math.MaxInt64, // Set a fixed width for the output.
+		Prefix:   "    ",        // Prefix each line with spaces for better readability.
+		Width:    options.WrapWidth,
+	}
+	if options.AllowColor {
+		wrapSpec.Color = layout.AllowColor
+	}
 
 	// Log and run the command, copying stdout and stderr.
 	slog.InfoContext(ctx, "  Running", "command", strings.Join(quotedCmdArgs, " "))
 	cmd := exec.CommandContext(ctx, cmdArgs[0], cmdArgs[1:]...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	cmd.Stdin = stdinStream
+	cmd.Stdout = layout.NewWrapStream(os.Stdout, wrapSpec) // Prefix stdout with spaces for better readability.
+	cmd.Stderr = layout.NewWrapStream(os.Stderr, wrapSpec) // Prefix stderr with spaces for better readability.
 	// Execute the command and handle errors.
 	if err := cmd.Run(); err != nil {
 		// Output command with quotes when needed.
@@ -59,6 +76,7 @@ func executeOneCommand(ctx context.Context, _ *RunOptions, args []string) error 
 func doMatrixExecute(ctx context.Context, option *RunOptions, args []string) error {
 	// Parse dimensions from CLI options.
 	dimensions := make([]dimension, 0, len(option.Dimension))
+	slog.DebugContext(ctx, "Matrix dimensions", "dimensions", option.Dimension)
 	for _, dim := range option.Dimension {
 		parts := strings.SplitN(dim, "=", 2)
 		if len(parts) != 2 {
@@ -75,10 +93,24 @@ func doMatrixExecute(ctx context.Context, option *RunOptions, args []string) err
 		})
 	}
 
-	slog.InfoContext(ctx, "Matrix:")
-
 	// Initialize indexes for iterating over all combinations.
 	indexes := make([]int, len(dimensions))
+
+	var stdin []byte
+	var err error
+
+	if len(args) == 0 || args[0] == "-" {
+		if option.Shell == "" {
+			option.Shell = "bash"
+		}
+		slog.InfoContext(ctx, fmt.Sprintf("No command provided, assuming %q with stdin", option.Shell))
+		args = strings.Split(option.Shell, " ")
+		stdin, err = io.ReadAll(os.Stdin)
+		if err != nil {
+			return fmt.Errorf("error reading stdin: %w", err)
+		}
+	}
+	slog.InfoContext(ctx, "Matrix:")
 
 	for {
 		// Set environment variables for each cell in the current combination.
@@ -90,7 +122,7 @@ func doMatrixExecute(ctx context.Context, option *RunOptions, args []string) err
 		slog.InfoContext(ctx, fmt.Sprintf("  Setting environment: %s", varstring.String()))
 
 		// Run the command for the current combination.
-		err := executeOneCommand(ctx, option, args)
+		err := executeOneCommand(ctx, option, stdin, args)
 		if err != nil {
 			return fmt.Errorf("error running command: %w", err)
 		}
@@ -106,6 +138,10 @@ func doMatrixExecute(ctx context.Context, option *RunOptions, args []string) err
 			if i == 0 {
 				return nil // All combinations have been processed
 			}
+		}
+		if len(indexes) == 0 {
+			slog.WarnContext(ctx, "No dimensions provided so only itterating once")
+			return nil
 		}
 	}
 }

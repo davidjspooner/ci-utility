@@ -47,9 +47,6 @@ func executeSuggestBuildEnv(ctx context.Context, options *SuggestBuildEnvOptions
 	slog.DebugContext(ctx, "Current", "tag", latestTag, "version", currentVersion.String())
 
 	prefix := options.CommandPrefix
-	if prefix != "" && !strings.HasSuffix(prefix, " ") {
-		prefix += " "
-	}
 
 	now := time.Now().UTC()
 	nowStr := now.Format(time.RFC1123)
@@ -85,6 +82,8 @@ func suggestBuildName() string {
 	// Check for a tag version.
 	tag, err := Run("tag", "--contains", "HEAD")
 	if err == nil && tag != "" {
+		tags := strings.Split(strings.TrimSpace(tag), "\n")
+		tag = strings.TrimSpace(tags[0]) // Take the first tag if multiple are returned.
 		// If HEAD is tagged, return the tag.
 		return tag
 	}
@@ -94,7 +93,7 @@ func suggestBuildName() string {
 	if err != nil {
 		return "UNKNOWN"
 	}
-	return commitHash
+	return "COMMIT." + commitHash
 }
 
 // getBuildContext returns a string describing the build context, such as a CI run ID or user@hostname.
