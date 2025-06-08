@@ -5,9 +5,6 @@ inputs:
     description: 'The version of the ci-utility to install. Defaults to "latest".'
     required: false
     default: 'latest'
-  token:
-    description: 'GitHub token to use for authentication.'
-    required: false
 runs:
   using: "composite"
   steps:
@@ -18,7 +15,6 @@ runs:
     - name: Fetch and install release (${{ inputs.version }})
       shell: bash
       env:
-        GITHUB_AUTH: ${{ inputs.token }}
         VERSION: ${{ inputs.version }}
       run: |
         # Check for required tools
@@ -29,8 +25,8 @@ runs:
             fi
         done
 
-        if [[ -n "${GITHUB_AUTH:-}" ]]; then
-            CURL_AUTH=(-H "Authorization: token $GITHUB_AUTH")
+        if [[ -n "${GITHUB_TOKEN:-}" ]]; then
+            CURL_AUTH=(-H "Authorization: token $GITHUB_TOKEN")
         else
             CURL_AUTH=()
         fi      
