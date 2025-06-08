@@ -37,6 +37,7 @@ case "$ARCH" in
     *) echo "Unsupported architecture: $ARCH"; exit 1 ;;
 esac
 
+echo "QUERY_URL: ${CURL_AUTH[@]} https://api.github.com/repos/davidjspooner/ci-utility/releases/tags/v${VERSION}"
 # List all the assets for the release
 ASSETS=$(curl -fsSL "${CURL_AUTH[@]}" "https://api.github.com/repos/davidjspooner/ci-utility/releases/tags/v${VERSION}" )
 if [[ -z "$ASSETS" ]]; then
