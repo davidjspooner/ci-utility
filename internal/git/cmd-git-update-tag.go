@@ -45,8 +45,7 @@ func applyNewTag(ctx context.Context, newTag string, option *BumpGitTagOptions) 
 		return fmt.Errorf("failed to push tag: %v", err)
 	}
 
-	// Log tag creation and push.
-	slog.InfoContext(ctx, "Tag created and pushed", "tag", newTag)
+	// no need to Log tag creation and push since it is in output of git command above.
 	return nil
 }
 
