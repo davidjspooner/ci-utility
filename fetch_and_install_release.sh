@@ -10,8 +10,8 @@ for tool in curl jq zip; do
     fi
 done
 
-if [[ -n "${GITHUB_AUTH:-}" ]]; then
-    CURL_AUTH=(-H "Authorization: token $GITHUB_AUTH")
+if [[ -n "${GITHUB_TOKEN:-}" ]]; then
+    CURL_AUTH=(-H "Authorization: token $GITHUB_TOKEN")
 else
     CURL_AUTH=()
 fi
