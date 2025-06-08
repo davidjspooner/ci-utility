@@ -99,8 +99,11 @@ func suggestBuildName() string {
 // getBuildContext returns a string describing the build context, such as a CI run ID or user@hostname.
 func getBuildContext() string {
 	// Check for github actions.
-	if os.Getenv("GITHUB_ACTIONS") == "true" {
-		return os.ExpandEnv("${GITHUB_JOB} (${GITHUB_RUN_ID}@github)")
+	githubRunID := os.Getenv("GITHUB_RUN_ID")
+	if githubRunID != "" {
+		url := getGitUrl()
+		url += "/actions/runs/" + githubRunID
+		return "github-actions " + url
 	}
 
 	// Fallback to user@hostname.
