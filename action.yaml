@@ -5,6 +5,9 @@ inputs:
     description: 'The version of the ci-utility to install. Defaults to "latest".'
     required: false
     default: 'latest'
+  token:
+    description: 'GitHub token to use for authentication.'
+    required: false
 runs:
   using: "composite"
   steps:
@@ -15,7 +18,7 @@ runs:
     - name: Fetch and install release (${{ inputs.version }})
       shell: bash
       env:
-        GITHUB_AUTH: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_AUTH: ${{ inputs.token }}
         VERSION: ${{ inputs.version }}
       run: |
         # Check for required tools
