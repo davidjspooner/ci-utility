@@ -13,7 +13,7 @@ type Issue struct {
 	Package  string
 	Filename string
 	Line     int // line number in the file
-	Count    int
+	Weight   int
 
 	Type     string   // e.g., "complexity", "size", "comments", etc.
 	Message  string   // description of the issue
@@ -47,7 +47,7 @@ func (r *Result) Summerize() {
 		}
 		// Add the issue as a child and increment the count.
 		parent.Children = append(parent.Children, issue)
-		parent.Count += issue.Count
+		parent.Weight += issue.Weight
 	}
 	// Rebuild the Issues slice with summarized parents.
 	r.Issues = make([]*Issue, 0, len(parents))
@@ -60,7 +60,7 @@ func (r *Result) Summerize() {
 	}
 	// Sort issues by count, filename, type, and line.
 	slices.SortFunc(r.Issues, func(a, b *Issue) int {
-		r := a.Count - b.Count
+		r := a.Weight - b.Weight
 		if r == 0 {
 			r = strings.Compare(a.Filename, b.Filename)
 		}
@@ -80,11 +80,11 @@ func (r *Result) Summerize() {
 // It defines a Name method to return the category name and a Run method to execute the review logic.
 type Category interface {
 	Name() string
-	Run(ctx context.Context, meta *Meta, options *ReviewOptions) ([]*Result, error)
+	Run(ctx context.Context, meta *Scope, options *ReviewOptions) ([]*Result, error)
 }
 
-// Meta contains data passed to Reviews.
+// Scope contains data passed to Reviews.
 // It includes root paths and can be extended to include more metadata like AST, coverage, etc.
-type Meta struct {
+type Scope struct {
 	RootPaths []string
 }

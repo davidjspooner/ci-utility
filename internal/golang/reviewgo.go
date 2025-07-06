@@ -25,7 +25,7 @@ var reviewCommand = cmd.NewCommand(
 	"review",
 	"Review project and optionally generate a review.yaml file",
 	func(ctx context.Context, options *ReviewOptions, args []string) error {
-		meta := Meta{}
+		meta := Scope{}
 		for _, arg := range args {
 			roots, err := filepath.Glob(arg)
 			if err != nil {
@@ -68,7 +68,7 @@ var _ Category = (*GoReview)(nil)
 func (c *GoReview) Name() string { return "go_code_structure" }
 
 // Run executes the GoReview checks on the provided meta and options.
-func (c *GoReview) Run(ctx context.Context, meta *Meta, options *ReviewOptions) ([]*Result, error) {
+func (c *GoReview) Run(ctx context.Context, meta *Scope, options *ReviewOptions) ([]*Result, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -320,7 +320,7 @@ func (c *GoReview) addIssue(pi *goPackageInfo, filename string, lineNumber int, 
 		Line:     lineNumber,
 		Type:     issueType,
 		Message:  message,
-		Count:    1, // Initialize count to 1 for the first occurrence
+		Weight:   1, // Initialize count to 1 for the first occurrence
 	}
 	c.issues = append(c.issues, issue)
 }
