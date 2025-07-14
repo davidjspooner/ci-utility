@@ -13,7 +13,7 @@ import (
 
 // Commands returns the list of template-related CLI commands,
 // including the 'template expand' subcommand.
-func Commands() []cmd.Command {
+func AddCommandsTo(parent cmd.Command) error {
 	// Create the root template command.
 	templateCommand := cmd.NewCommand(
 		"template",
@@ -30,7 +30,8 @@ func Commands() []cmd.Command {
 	)
 	// Add the expand subcommand to the root template command.
 	templateCommand.SubCommands().MustAdd(expand)
-	return []cmd.Command{templateCommand}
+	parent.SubCommands().MustAdd(templateCommand)
+	return nil
 }
 
 // expandOptions defines the command-line flags for the 'template expand' command.

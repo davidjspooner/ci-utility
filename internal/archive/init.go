@@ -5,7 +5,7 @@ import (
 )
 
 // Commands returns the list of archive-related CLI commands, including checksum and compress.
-func Commands() []cmd.Command {
+func AddCommandsTo(parent cmd.Command) error {
 
 	group := cmd.NewCommandGroup(
 		"archive",
@@ -32,5 +32,6 @@ func Commands() []cmd.Command {
 	)
 	// Add subcommands to the archive command.
 	group.SubCommands().MustAdd(checksumCmd, compressCmd)
-	return []cmd.Command{group}
+	parent.SubCommands().MustAdd(group)
+	return nil
 }

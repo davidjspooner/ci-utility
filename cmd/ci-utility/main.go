@@ -9,6 +9,7 @@ import (
 	"github.com/davidjspooner/ci-utility/internal/git"
 	"github.com/davidjspooner/ci-utility/internal/github"
 	"github.com/davidjspooner/ci-utility/internal/golang"
+	"github.com/davidjspooner/ci-utility/internal/llm"
 	"github.com/davidjspooner/ci-utility/internal/matrix"
 	"github.com/davidjspooner/ci-utility/internal/template"
 	"github.com/davidjspooner/go-text-cli/pkg/cmd"
@@ -38,25 +39,16 @@ func main() {
 	cmd.RootCommand = root
 
 	// Create sub commands for the root command
-	versionCommand := cmd.VersionCommand()
-	gitCommands := git.Commands()
-	archiveCommands := archive.Commands()
-	githubCommands := github.Commands()
-	templateCommands := template.Commands()
-	reviewCommands := golang.Commands()
-	matrixCommands := matrix.Commands()
 
-	// Add subcommands to the root command
-	subcommands := cmd.RootCommand.SubCommands()
-	subcommands.MustAdd(
-		versionCommand,
-		gitCommands,
-		archiveCommands,
-		githubCommands,
-		templateCommands,
-		reviewCommands,
-		matrixCommands,
-	)
+	git.AddCommandsTo(cmd.RootCommand)
+	archive.AddCommandsTo(cmd.RootCommand)
+	github.AddCommandsTo(cmd.RootCommand)
+	golang.AddCommandsTo(cmd.RootCommand)
+	template.AddCommandsTo(cmd.RootCommand)
+	matrix.AddCommandsTo(cmd.RootCommand)
+	llm.AddCommandsTo(cmd.RootCommand)
+
+	cmd.RootCommand.SubCommands().Add(cmd.VersionCommand())
 
 	ctx := context.Background()
 	// Run the CLI with the provided arguments.

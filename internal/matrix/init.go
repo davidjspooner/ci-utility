@@ -5,7 +5,7 @@ import (
 )
 
 // Commands returns the CLI command group for matrix operations.
-func Commands() []cmd.Command {
+func AddCommandsTo(parent cmd.Command) error {
 	// Create the root command group for matrix tools.
 	group := cmd.NewCommandGroup(
 		"matrix",
@@ -21,7 +21,6 @@ func Commands() []cmd.Command {
 	// Add the run command to the group.
 	group.SubCommands().Add(runCommand)
 	// Return the group as a list of commands.
-	return []cmd.Command{
-		group,
-	}
+	parent.SubCommands().MustAdd(group)
+	return nil
 }

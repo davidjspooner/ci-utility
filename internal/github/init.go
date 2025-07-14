@@ -5,7 +5,7 @@ import (
 )
 
 // Commands returns the list of GitHub-related CLI commands for the application.
-func Commands() []cmd.Command {
+func AddCommandsTo(parent cmd.Command) error {
 	githubCommand := cmd.NewCommandGroup(
 		"github",
 		"GitHub commands",
@@ -41,5 +41,6 @@ func Commands() []cmd.Command {
 
 	// Add groups to the root github command.
 	githubCommand.SubCommands().MustAdd(release, pullRequest)
-	return []cmd.Command{githubCommand}
+	parent.SubCommands().MustAdd(githubCommand)
+	return nil
 }
