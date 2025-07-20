@@ -13,18 +13,21 @@ import (
 
 type CustomOptions struct {
 	// Add any options specific to the review command here
-	Config       string `flag:"--config,config file for LLM model to use"`
 	SystemPrompt string `flag:"--system,system prompt file for LLM"`
-	OutputFile   string `flag:"--output,output file for LLM response"`
-	ToolsFile    string `flag:"--tools,used to defined tools the LLM can use"`
 }
 
 func executeCustomCommand(ctx context.Context, options *CustomOptions, args []string) error {
-	clientConfig, err := llmclient.LoadConfig(options.Config)
+
+	llmOptions, err := cmd.FindOptionStruct[LLMOptions](ctx)
+	if err != nil {
+		return fmt.Errorf("failed to find LLM options: %w", err)
+	}
+
+	clientConfig, err := llmclient.LoadConfig(llmOptions.Config)
 	if err != nil {
 		return fmt.Errorf("failed to load LLM config: %w", err)
 	}
-	client, err := clientConfig.CreateClient()
+	client, err := clientConfig.CreateChatClient()
 	if err != nil {
 		return fmt.Errorf("failed to create LLM client: %w", err)
 	}
@@ -77,14 +80,14 @@ func executeCustomCommand(ctx context.Context, options *CustomOptions, args []st
 	if err != nil {
 		return fmt.Errorf("failed to get LLM response: %w", err)
 	}
-	if options.OutputFile == "-" || options.OutputFile == "" {
+	if llmOptions.OutputFile == "-" || llmOptions.OutputFile == "" {
 		for _, choice := range resp.Choices {
 			fmt.Println("Response:", choice.Message.Content)
 		}
 	} else {
-		f, err := os.Open(options.OutputFile)
+		f, err := os.Open(llmOptions.OutputFile)
 		if err != nil {
-			return fmt.Errorf("failed to open output file %s: %w", options.OutputFile, err)
+			return fmt.Errorf("failed to open output file %s: %w", llmOptions.OutputFile, err)
 		}
 		defer f.Close()
 		for n, choice := range resp.Choices {
@@ -93,7 +96,7 @@ func executeCustomCommand(ctx context.Context, options *CustomOptions, args []st
 			}
 			_, err := f.Write([]byte(choice.Message.Content))
 			if err != nil {
-				return fmt.Errorf("failed to write to output file %s: %w", options.OutputFile, err)
+				return fmt.Errorf("failed to write to output file %s: %w", llmOptions.OutputFile, err)
 			}
 		}
 	}
