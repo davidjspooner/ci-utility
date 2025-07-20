@@ -1,8 +1,8 @@
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davidjspooner/go-llm-client v0.0.0-20250720220153-b065484726e6 h1:e9NPvoVIoU1s7egzhmPCLpPfv3o/dvYNzJ9ZZ0JzC6w=
 github.com/davidjspooner/go-llm-client v0.0.0-20250720220153-b065484726e6/go.mod h1:EaZk9y6edL8QmEcJ1vhoUl1Wj3JODr7BuNyqWj62YtY=
-github.com/davidjspooner/go-text-cli v0.0.8 h1:yp/Wv7eXx4w/cw5wB3SAYGWA5Od7b0NvqVc+nFRtrRo=
-github.com/davidjspooner/go-text-cli v0.0.8/go.mod h1:LuXSCWfIap/2bqTBBQckgSIYyTnyohp3jFHW+UrQSZU=
+github.com/davidjspooner/go-text-cli v0.0.9 h1:Xwj6x16P9lD6/BCwBAkM4eMbfCBsbdeC8ca8Is0Qfc4=
+github.com/davidjspooner/go-text-cli v0.0.9/go.mod h1:LuXSCWfIap/2bqTBBQckgSIYyTnyohp3jFHW+UrQSZU=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
 github.com/kr/pretty v0.3.1/go.mod h1:hoEshYVHaxMs3cyo3Yncou5ZscifuDolrwPKZanG3xk=
 github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=
