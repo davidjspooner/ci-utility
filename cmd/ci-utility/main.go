@@ -36,19 +36,19 @@ func main() {
 			return err
 		}, &GlobalOptions{})
 
-	cmd.RootCommand = root
+	cmd.Root = root
 
 	// Create sub commands for the root command
 
-	git.AddCommandsTo(cmd.RootCommand)
-	archive.AddCommandsTo(cmd.RootCommand)
-	github.AddCommandsTo(cmd.RootCommand)
-	golang.AddCommandsTo(cmd.RootCommand)
-	template.AddCommandsTo(cmd.RootCommand)
-	matrix.AddCommandsTo(cmd.RootCommand)
-	llm.AddCommandsTo(cmd.RootCommand)
+	git.AddCommandsTo(cmd.Root)
+	archive.AddCommandsTo(cmd.Root)
+	github.AddCommandsTo(cmd.Root)
+	golang.AddCommandsTo(cmd.Root)
+	template.AddCommandsTo(cmd.Root)
+	matrix.AddCommandsTo(cmd.Root)
+	llm.AddCommandsTo(cmd.Root)
 
-	cmd.RootCommand.SubCommands().Add(cmd.VersionCommand())
+	cmd.Root.SubCommands().Add(cmd.VersionCommand())
 
 	ctx := context.Background()
 	// Run the CLI with the provided arguments.
