@@ -1,6 +1,6 @@
 module github.com/davidjspooner/ci-utility
 
-go 1.24.2
+go 1.25.0
 
 require (
 	github.com/davidjspooner/go-llm-client v0.0.0-20250720220153-b065484726e6
