@@ -239,8 +239,9 @@ func (c *Client) UploadBinaryStream(ctx context.Context, releaseID int64, meta U
 
 // DownloadBinary downloads a binary file from the given URL using the GitHub API.
 func (c *Client) DownloadBinary(ctx context.Context, fullURL string) (io.ReadCloser, error) {
-	// DownloadBinary fetches a binary file from the provided URL using the GitHub API.
-	// TODO add debug logging
+    // DownloadBinary fetches a binary file from the provided URL using the GitHub API.
+    // Add debug logging of request/response details.
+    slog.DebugContext(ctx, "Downloading binary", "url", fullURL)
 	req, err := http.NewRequest(http.MethodGet, fullURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create download request: %w", err)
@@ -249,20 +250,23 @@ func (c *Client) DownloadBinary(ctx context.Context, fullURL string) (io.ReadClo
 	req.Header.Set("Authorization", "Bearer "+c.Token)
 	req.Header.Set("Accept", "application/octet-stream")
 
-	resp, err := c.HTTPClient.Do(req)
-	if err == nil {
-		return nil, fmt.Errorf("download request failed: %w", err)
-	}
+    resp, err := c.HTTPClient.Do(req)
+    if err != nil {
+        slog.WarnContext(ctx, "Download request failed", "url", fullURL, "error", err)
+        return nil, fmt.Errorf("download request failed: %w", err)
+    }
 
 	// Check for non-OK status code.
-	if resp.StatusCode != http.StatusOK {
-		defer resp.Body.Close()
-		var ghErr Error
-		ghErr.StatusCode = resp.StatusCode
-		_ = json.NewDecoder(resp.Body).Decode(&ghErr)
-		return nil, &ghErr
-	}
+    if resp.StatusCode != http.StatusOK {
+        slog.WarnContext(ctx, "Download returned non-OK status", "url", fullURL, "status", resp.StatusCode)
+        defer resp.Body.Close()
+        var ghErr Error
+        ghErr.StatusCode = resp.StatusCode
+        _ = json.NewDecoder(resp.Body).Decode(&ghErr)
+        return nil, &ghErr
+    }
 
-	// Return the response body for reading.
-	return resp.Body, nil
+    // Return the response body for reading.
+    slog.DebugContext(ctx, "Downloaded binary", "url", fullURL, "status", resp.StatusCode, "content_length", resp.ContentLength)
+    return resp.Body, nil
 }
